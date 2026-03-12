@@ -1,0 +1,10 @@
+services:
+  applier:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Mount assets at runtime — these contain your personal data and must not be baked into the image
+      - ./assets:/app/assets:ro
+    # Chromium inside the container needs a shared memory increase to avoid crashes
+    shm_size: "2gb"

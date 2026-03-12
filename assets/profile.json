@@ -1,0 +1,40 @@
+{
+  "full_name": "Your Full Name",
+  "email": "you@example.com",
+  "phone": "+1 555 000 0000",
+  "location": {
+    "city": "Paris",
+    "country": "France",
+    "willing_to_relocate": false
+  },
+  "linkedin_url": "https://linkedin.com/in/your-profile",
+  "github_url": "https://github.com/your-handle",
+  "portfolio_url": "",
+  "years_of_experience": 5,
+  "current_title": "Senior Software Engineer",
+  "desired_roles": ["Software Engineer", "Backend Engineer", "Full Stack Engineer"],
+  "desired_salary": {
+    "min": 80000,
+    "max": 120000,
+    "currency": "EUR",
+    "period": "annual"
+  },
+  "availability": "2 weeks notice",
+  "work_authorization": "EU citizen — no sponsorship required",
+  "languages": [
+    {"language": "English", "level": "Fluent"},
+    {"language": "French", "level": "Native"}
+  ],
+  "education": [
+    {
+      "degree": "Master of Science in Computer Science",
+      "institution": "University of Example",
+      "year": 2018
+    }
+  ],
+  "skills": [
+    "Python", "TypeScript", "React", "Node.js", "PostgreSQL", "Docker", "AWS"
+  ],
+  "cover_letter_intro": "I am a passionate software engineer with 5 years of experience building scalable web applications. I am excited about this opportunity because it aligns with my expertise in backend systems and my interest in impactful products.",
+  "additional_notes": "Available for remote or hybrid roles. Open to both full-time and contract positions."
+}
