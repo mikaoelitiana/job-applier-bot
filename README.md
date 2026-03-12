@@ -179,15 +179,22 @@ Assets are stored in a named Docker volume (`applier_assets`) that persists acro
 
 ### Uploading assets to the volume (first time only)
 
-After the container has started at least once (so Docker creates the volume), copy your files into it:
+Assets are stored in a named Docker volume (`applier_assets`) which cannot be written to directly via `scp`. The process is two steps: upload to a temporary location on the VPS, then copy into the volume.
+
+**Step 1 — Upload from your local machine via scp:**
 
 ```bash
-# Copy resume
-docker cp assets/resume.pdf applier:/app/assets/resume.pdf
-
-# Copy profile (if you edited it locally)
-docker cp assets/profile.json applier:/app/assets/profile.json
+scp assets/resume.pdf assets/profile.json user@your-vps-ip:/tmp/
 ```
+
+**Step 2 — Copy from the VPS into the container volume:**
+
+```bash
+docker cp /tmp/resume.pdf applier:/app/assets/resume.pdf
+docker cp /tmp/profile.json applier:/app/assets/profile.json
+```
+
+The container must be running before `docker cp` will work (the volume is created on first start).
 
 If you set `GOOGLE_SERVICE_ACCOUNT_JSON` as an env var, you don't need to copy `service_account.json`.
 
