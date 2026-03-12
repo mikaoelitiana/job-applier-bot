@@ -106,10 +106,10 @@ IMPORTANT:
 """
 
 
-def _chromium_executable() -> str:
+async def _chromium_executable() -> str:
     """Return the path to the Playwright-installed Chromium binary."""
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as p:
+    from playwright.async_api import async_playwright
+    async with async_playwright() as p:
         return p.chromium.executable_path
 
 
@@ -127,7 +127,7 @@ async def apply_to_job(url: str) -> ApplicationResult:
     browser = BrowserSession(
         browser_profile=BrowserProfile(
             headless=True,
-            executable_path=_chromium_executable(),
+            executable_path=await _chromium_executable(),
         )
     )
 
