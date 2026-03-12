@@ -51,9 +51,11 @@ Place your files in the `assets/` directory:
 |------|-------------|
 | `assets/resume.pdf` | Your resume — uploaded to application forms |
 | `assets/profile.json` | Your personal details used to fill forms |
-| `assets/service_account.json` | Google service account key (see step 4) |
+| `assets/service_account.json` | Google service account key (optional — see step 4) |
 
 Edit `assets/profile.json` with your real information. The template is pre-filled with placeholders.
+
+> **Note:** `service_account.json` is only required if you use the file-based credential option (Option B in step 4). If you set `GOOGLE_SERVICE_ACCOUNT_JSON` in `.env`, you don't need this file at all.
 
 ### 3. Create a Telegram bot
 
@@ -84,12 +86,26 @@ A service account lets the bot write to your sheet without any OAuth browser flo
 3. Give it any name (e.g. `job-applier`)
 4. Skip the optional role/user steps and click **Done**
 
-**Step 4 — Download the JSON key**
+**Step 4 — Configure credentials**
 
-1. Click the service account you just created
-2. Go to the **Keys** tab
-3. Click **Add Key → Create new key → JSON**
-4. Download the file and save it as `assets/service_account.json`
+You have two options:
+
+**Option A — Env var (recommended for VPS/CI)**
+
+Minify the downloaded JSON to a single line and set it in `.env`:
+
+```bash
+GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"..."}
+```
+
+A quick way to minify it:
+```bash
+cat service_account.json | python3 -m json.tool --compact
+```
+
+**Option B — File mount**
+
+Save the downloaded file as `assets/service_account.json`. Leave `GOOGLE_SERVICE_ACCOUNT_JSON` unset and the bot will fall back to reading the file via `GOOGLE_SERVICE_ACCOUNT_FILE` (defaults to `assets/service_account.json`).
 
 **Step 5 — Share your Google Sheet with the service account**
 
@@ -226,6 +242,7 @@ applier/
 
 ## Security notes
 
-- `assets/service_account.json` and `assets/resume.pdf` contain personal/sensitive data — never commit them to git
+- `assets/resume.pdf` contains personal data — never commit it to git
+- `assets/service_account.json` contains sensitive credentials — never commit it to git (prefer the `GOOGLE_SERVICE_ACCOUNT_JSON` env var on a VPS so no file needs to be transferred)
 - Use `ALLOWED_TELEGRAM_USER_IDS` to restrict bot access to your own account
 - Keep your `.env` file out of version control (it is in `.gitignore`)
