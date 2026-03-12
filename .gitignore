@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# Personal assets — never commit these
+assets/resume.pdf
+assets/service_account.json
