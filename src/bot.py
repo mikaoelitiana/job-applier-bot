@@ -190,15 +190,23 @@ def main() -> None:
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     async def run():
-        async with app:
-            await asyncio.create_task(process_queue(app))
-            await app.start()
-            await app.updater.start_polling()
-            await app.updater.stop()
+        queue_task = asyncio.create_task(process_queue(app))
+        try:
+            await app.run_polling()
+        finally:
+            queue_task.cancel()
+            try:
+                await queue_task
+            except asyncio.CancelledError:
+                pass
 
     logger.info("Bot polling started")
-    asyncio.run(run())
+    loop.run_until_complete(run())
+    loop.close()
 
 
 if __name__ == "__main__":
