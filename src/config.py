@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     #   openai/gpt-4o
     #   gemini/gemini-2.0-flash
     #   ollama/llama3
+    #   perplexity/sonar-pro
     llm_model: str = Field(default="anthropic/claude-sonnet-4-6", alias="LLM_MODEL")
 
     # Anthropic
@@ -25,6 +26,9 @@ class Settings(BaseSettings):
 
     # Google Gemini (optional alternative provider)
     gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
+
+    # Perplexity (optional alternative provider, OpenAI-compatible)
+    perplexity_api_key: str | None = Field(default=None, alias="PERPLEXITY_API_KEY")
 
     # Telegram
     telegram_bot_token: str = Field(alias="TELEGRAM_BOT_TOKEN")
