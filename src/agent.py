@@ -122,9 +122,12 @@ YOUR TASK:
 2. Read the full job description and note the job title and company name.
 3. Find the application form or "Apply" button. If there is an "Apply" button, click it.
 4. Fill in ALL required fields using the candidate profile above. Guidelines:
-   - For name fields, use full_name.
-   - For email, phone, location fields, use the corresponding profile values.
-   - For resume/CV upload fields, upload the file at: {abs_resume}
+    - For name fields, use full_name.
+    - For email, phone, location fields, use the corresponding profile values.
+    - For phone fields: if you see "Not a valid phone number" error, try the following formats:
+      * If country code is already selected (e.g., +33 for France), remove the leading 0 from the number (e.g., 622456471 instead of 0622456471)
+      * If no country code is selected, add the proper country code without the leading 0 (e.g., +33622456471)
+    - For resume/CV upload fields, upload the file at: {abs_resume}
    - For cover letter fields, write a tailored 2-3 paragraph cover letter using the candidate's
      cover_letter_intro and skills, customized to match the job description you read.
    - For salary/compensation fields, use the desired_salary values.
