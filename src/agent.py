@@ -73,7 +73,7 @@ def _build_llm():
         return ChatOpenAI(
             model=model_name,
             api_key=settings.ollamacloud_api_key,
-            base_url="https://ollama.com/api",
+            base_url="https://ollama.com/api/v1",
         )
 
     if provider == "minimax":
