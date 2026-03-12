@@ -46,8 +46,24 @@ def _ensure_header(sheet: gspread.Worksheet) -> None:
         sheet.append_row(COLUMNS)
 
 
+def _find_first_empty_row(sheet: gspread.Worksheet) -> int:
+    """Find the first row where Company, Title, and Job Posting Link are all empty.
+    
+    Returns the 1-indexed row number. Skips header row (row 1).
+    """
+    all_values = sheet.get_all_values()
+    
+    for idx, row in enumerate(all_values[1:], start=2):  # Skip header, 1-indexed
+        company, title, status, link = row[:4] if len(row) >= 4 else ["", "", "", ""]
+        if not company.strip() and not title.strip() and not link.strip():
+            return idx
+    
+    # No empty row found — append at the end
+    return len(all_values) + 1
+
+
 def append_application(record: ApplicationRecord) -> None:
-    """Append one row to the configured Google Sheet."""
+    """Write one row to the configured Google Sheet at the first empty row."""
     try:
         client = _get_client()
         spreadsheet = client.open_by_key(settings.google_sheet_id)
@@ -61,16 +77,18 @@ def append_application(record: ApplicationRecord) -> None:
 
         _ensure_header(sheet)
 
-        date_applied = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         row = [
             record.company,
             record.job_title,
             record.status,
             record.url,
         ]
-        sheet.append_row(row)
-        logger.info("Appended application to sheet: %s at %s", record.job_title, record.url)
+
+        # Find first empty row and insert there
+        target_row = _find_first_empty_row(sheet)
+        sheet.insert_row(row, target_row)
+        logger.info("Wrote application to sheet at row %d: %s at %s", target_row, record.job_title, record.url)
 
     except Exception:
-        logger.exception("Failed to append application to Google Sheet")
+        logger.exception("Failed to write to Google Sheet")
         raise
