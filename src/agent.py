@@ -86,12 +86,13 @@ def _build_llm():
         )
 
     if provider == "opencode":
+        import os
+        os.environ["OPENAI_API_KEY"] = settings.opencode_api_key
         from browser_use import ChatOpenAI
         return ChatOpenAI(
             model=model_name,
-            api_key="dummy",  # Required but we use extra_headers for auth
+            api_key=settings.opencode_api_key,
             base_url="https://opencode.ai/zen/v1/chat/completions",
-            extra_headers={"Authorization": f"Bearer {settings.opencode_api_key}"},
         )
 
     raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter, ollamacloud, minimax, opencode")
