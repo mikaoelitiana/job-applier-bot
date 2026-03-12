@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     resume_path: str = Field(default="assets/resume.pdf", alias="RESUME_PATH")
     profile_path: str = Field(default="assets/profile.json", alias="PROFILE_PATH")
 
+    # Log file — written inside the assets volume so logs survive container restarts
+    log_file: str = Field(default="/app/assets/applier.log", alias="LOG_FILE")
+
     @property
     def allowed_user_ids(self) -> list[int]:
         if not self.allowed_telegram_user_ids.strip():
