@@ -5,7 +5,7 @@ services:
     env_file: .env
     volumes:
       # Named volume for assets — persists across deployments, must be populated once with docker cp
-      - applier_assets:/app/assets:ro
+      - applier_assets:/app/assets
       # Mount source code so local changes are reflected without rebuilding the image
       - ./src:/app/src
     # Chromium inside the container needs a shared memory increase to avoid crashes
