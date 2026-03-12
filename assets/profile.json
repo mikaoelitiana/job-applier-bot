@@ -1,18 +1,18 @@
 {
-  "full_name": "Your Full Name",
-  "email": "you@example.com",
-  "phone": "+1 555 000 0000",
+  "full_name": "Mika Andrianarijaona",
+  "email": "mikaoelitiana@gmail.com",
+  "phone": "0622456471",
   "location": {
     "city": "Paris",
     "country": "France",
     "willing_to_relocate": false
   },
-  "linkedin_url": "https://linkedin.com/in/your-profile",
-  "github_url": "https://github.com/your-handle",
+  "linkedin_url": "https://linkedin.com/in/mikaoelitiana",
+  "github_url": "https://github.com/mikaoelitiana",
   "portfolio_url": "",
-  "years_of_experience": 5,
+  "years_of_experience": 13,
   "current_title": "Senior Software Engineer",
-  "desired_roles": ["Software Engineer", "Backend Engineer", "Full Stack Engineer"],
+  "desired_roles": ["Senior Software Engineer", "Senior Full Stack Engineer", "Senior Frontend Engineer", "Senior Backend Engineer"],
   "desired_salary": {
     "min": 80000,
     "max": 120000,
@@ -22,19 +22,107 @@
   "availability": "2 weeks notice",
   "work_authorization": "EU citizen — no sponsorship required",
   "languages": [
+    {"language": "French", "level": "Native"},
     {"language": "English", "level": "Fluent"},
-    {"language": "French", "level": "Native"}
+    {"language": "Spanish", "level": "Conversational"}
   ],
   "education": [
     {
-      "degree": "Master of Science in Computer Science",
-      "institution": "University of Example",
-      "year": 2018
+      "degree": "Master in Computer Science",
+      "institution": "Institut Supérieur Polytechnique de Madagascar",
+      "year": 2011
     }
   ],
   "skills": [
-    "Python", "TypeScript", "React", "Node.js", "PostgreSQL", "Docker", "AWS"
+    "TypeScript", "React", "React Native", "Node.js", "Python",
+    "GraphQL", "Redux", "AngularJS", "Tailwind",
+    "PostgreSQL", "MongoDB", "Redis", "RabbitMQ",
+    "GCP", "Kubernetes", "Terraform", "Ansible",
+    "Jest", "Cypress", "Webpack", "CI/CD", "SonarQube",
+    "Elixir", "PHP", "Drupal"
   ],
-  "cover_letter_intro": "I am a passionate software engineer with 5 years of experience building scalable web applications. I am excited about this opportunity because it aligns with my expertise in backend systems and my interest in impactful products.",
-  "additional_notes": "Available for remote or hybrid roles. Open to both full-time and contract positions."
+  "experience": [
+    {
+      "title": "Senior Software Engineer",
+      "company": "Busbud",
+      "location": "Remote",
+      "start": "2022-04",
+      "end": "2025-12",
+      "highlights": [
+        "Owned end-to-end development of core e-commerce flows on busbud.com for ticket purchase and trip management.",
+        "Led delivery of the 'Cancel For Any Reason' ancillary product, expanding refund options and driving ancillary revenue.",
+        "Designed and maintained Node.js services using Domain-Driven Design; built performant React interfaces with Redux.",
+        "Improved reliability and regression coverage with Jest unit tests and Cypress E2E; optimized bundling with Webpack.",
+        "Partnered with product and design to scope, ship, and iterate on customer-facing features."
+      ],
+      "tech": ["TypeScript", "React", "Redux", "Node.js", "Webpack", "Jest", "Cypress"]
+    },
+    {
+      "title": "Senior Software Engineer",
+      "company": "Salsify (formerly Alkemics)",
+      "location": "Paris, France",
+      "start": "2020-11",
+      "end": "2022-04",
+      "highlights": [
+        "Delivered full-stack features for a large B2B retail data platform (Python services, React front end).",
+        "Introduced SonarQube with quality gates to improve code health and maintainability.",
+        "Led migration of the test suite from Mocha to Jest, reducing flakiness and standardizing tooling.",
+        "Initiated a developer book club to share best practices and architectural patterns (e.g., micro-frontends)."
+      ],
+      "tech": ["Python", "TypeScript", "React", "Redux", "Node.js", "Webpack", "Jest"]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "INEAT",
+      "location": "Paris, France",
+      "start": "2018-01",
+      "end": "2020-11",
+      "highlights": [
+        "Built and shipped React Native mobile apps for clients including Ouigo and Sephora.",
+        "Defined project architecture and best practices; established CI/CD, static analysis, and automated testing.",
+        "Implemented GraphQL integrations and TypeScript-based shared components across iOS and Android."
+      ],
+      "tech": ["TypeScript", "React", "React Native", "GraphQL"]
+    },
+    {
+      "title": "Full-Stack Developer",
+      "company": "TAG-IP",
+      "location": "Antananarivo, Madagascar",
+      "start": "2015-08",
+      "end": "2017-12",
+      "highlights": [
+        "Built backend APIs (Node.js, Elixir) and frontend applications (Angular, React) for TAG-IP's core products.",
+        "Helped manage the development lifecycle end-to-end using Agile practices.",
+        "Introduced a CI/CD pipeline to replace manual deployments, improving release reliability and speed."
+      ],
+      "tech": ["CoffeeScript", "AngularJS", "React", "MongoDB", "Redis"]
+    },
+    {
+      "title": "Web Project Manager",
+      "company": "Netapsys",
+      "location": "Antananarivo, Madagascar",
+      "start": "2012-01",
+      "end": "2015-08",
+      "highlights": [
+        "Managed parallel CMS projects (Drupal, WordPress, Joomla) end-to-end.",
+        "Led a small development team, reviewed work, and ensured quality against client requirements.",
+        "Coordinated stakeholders and schedules to derisk dependencies and meet deadlines."
+      ],
+      "tech": ["PHP", "Drupal", "WordPress", "Joomla"]
+    },
+    {
+      "title": "Drupal Developer",
+      "company": "Netapsys",
+      "location": "Antananarivo, Madagascar",
+      "start": "2011-08",
+      "end": "2012-01",
+      "highlights": [
+        "Built Drupal websites, developing custom modules and themes.",
+        "Collaborated with an extended team using Git workflows for efficient code review and integration."
+      ],
+      "tech": ["PHP", "Drupal", "HTML", "CSS"]
+    }
+  ],
+  "cover_letter_intro": "Senior Full Stack Engineer with 10+ years building and scaling e-commerce and B2B platforms. I lead end-to-end delivery — architecture, implementation, and release — partnering with product and design to ship revenue-driving features and raise reliability through automated testing and CI/CD. Core stack: TypeScript, React/React Native, Node.js, Python, and GraphQL; cloud/devops with GCP, Kubernetes, and Terraform.",
+  "additional_notes": "Available for remote or hybrid roles. Open to both full-time and contract positions. No sponsorship required — EU citizen based in Paris."
 }
