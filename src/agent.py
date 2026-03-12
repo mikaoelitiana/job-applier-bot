@@ -19,7 +19,7 @@ class ApplicationResult:
     notes: str
 
 
-def _build_llm():
+def _build_llm(model_override: str | None = None):
     """Instantiate the LLM based on the LLM_MODEL setting.
 
     Format: <provider>/<model-name>
@@ -29,7 +29,7 @@ def _build_llm():
         gemini/gemini-flash-latest
         ollama/llama3.1:8b
     """
-    model_str = settings.llm_model
+    model_str = model_override or settings.llm_model
     if "/" not in model_str:
         raise ValueError(
             f"LLM_MODEL must be in the form <provider>/<model>, got: {model_str!r}"
@@ -86,6 +86,14 @@ def _build_llm():
         )
 
     if provider == "opencode":
+        if model_name.startswith("claude-"):
+            from browser_use import ChatAnthropic
+            return ChatAnthropic(
+                model=model_name,
+                api_key=settings.opencode_api_key,
+                base_url="https://opencode.ai/zen/v1/messages",
+            )
+
         import os
         os.environ["OPENAI_API_KEY"] = settings.opencode_api_key
         from browser_use import ChatOpenAI
@@ -164,6 +172,9 @@ async def apply_to_job(url: str) -> ApplicationResult:
 
     task = _build_task(url, profile, resume_path)
     llm = _build_llm()
+    fallback_llm = None
+    if settings.fallback_llm_model.strip():
+        fallback_llm = _build_llm(settings.fallback_llm_model)
 
     browser = BrowserSession(
         browser_profile=BrowserProfile(
@@ -173,12 +184,15 @@ async def apply_to_job(url: str) -> ApplicationResult:
     )
 
     try:
-        agent = Agent(
+        agent_kwargs = dict(
             task=task,
             llm=llm,
             browser=browser,
             available_file_paths=[str(Path(resume_path).resolve())],
         )
+        if fallback_llm is not None:
+            agent_kwargs["fallback_llm"] = fallback_llm
+        agent = Agent(**agent_kwargs)
         result = await agent.run()
 
         # Extract the JSON summary the agent was asked to return

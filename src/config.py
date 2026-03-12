@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     #   minimax/MiniMax-M2.5
     #   opencode/minimax-m2.5
     llm_model: str = Field(default="anthropic/claude-sonnet-4-6", alias="LLM_MODEL")
+    fallback_llm_model: str = Field(default="", alias="FALLBACK_LLM_MODEL")
 
     # Anthropic
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
