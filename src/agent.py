@@ -4,7 +4,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from browser_use import Agent, Browser, BrowserConfig
+from browser_use import Agent, BrowserProfile, BrowserSession
 
 from src.config import settings
 
@@ -117,8 +117,7 @@ async def apply_to_job(url: str) -> ApplicationResult:
     task = _build_task(url, profile, resume_path)
     llm = _build_llm()
 
-    browser_config = BrowserConfig(headless=True)
-    browser = Browser(config=browser_config)
+    browser = BrowserSession(browser_profile=BrowserProfile(headless=True))
 
     try:
         agent = Agent(
