@@ -220,5 +220,10 @@ def _parse_agent_output(text: str, url: str) -> ApplicationResult:
             pass
 
     # Fallback: could not parse structured output
-    logger.error("Could not parse structured JSON from agent output for %s", url)
-    raise ValueError(f"Agent did not return valid JSON output. Raw output: {text[:1000]}")
+    logger.error("Could not parse structured JSON from agent output for %s. Raw output:\n%s", url, text)
+    return ApplicationResult(
+        success=False,
+        job_title="Unknown",
+        company="Unknown",
+        notes=f"Agent did not return valid JSON. Output: {text[:500]}" if text else "Agent returned no output",
+    )
