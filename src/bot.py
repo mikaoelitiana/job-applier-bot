@@ -15,6 +15,7 @@ URL_PATTERN = re.compile(r"https?://\S+")
 
 job_queue: asyncio.Queue = asyncio.Queue()
 is_processing = False
+queue_task: asyncio.Task | None = None
 
 
 def _is_allowed(user_id: int) -> bool:
@@ -91,14 +92,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     await job_queue.put((url, update, status_msg))
 
-async def process_queue(application: Application) -> None:
+async def process_queue() -> None:
     global is_processing
     while True:
-        url, update, status_msg = await job_queue.get()
-        is_processing = True
         try:
+            url, update, status_msg = await job_queue.get()
+            is_processing = True
             result = await apply_to_job(url)
             await handle_result(result, url, update, status_msg)
+        except asyncio.CancelledError:
+            raise
         except Exception as e:
             logger.exception("Unexpected error processing %s", url)
             await status_msg.edit_text(
@@ -106,6 +109,24 @@ async def process_queue(application: Application) -> None:
             )
         finally:
             is_processing = False
+
+
+async def _post_init(application: Application) -> None:
+    global queue_task
+    logger.info("Starting queue processor")
+    queue_task = asyncio.create_task(process_queue())
+
+
+async def _post_shutdown(application: Application) -> None:
+    global queue_task
+    if queue_task is not None:
+        logger.info("Stopping queue processor")
+        queue_task.cancel()
+        try:
+            await queue_task
+        except asyncio.CancelledError:
+            pass
+        queue_task = None
 
 
 async def handle_result(result, url: str, update: Update, status_msg) -> None:
@@ -183,6 +204,8 @@ def main() -> None:
     app = (
         Application.builder()
         .token(settings.telegram_bot_token)
+        .post_init(_post_init)
+        .post_shutdown(_post_shutdown)
         .build()
     )
 
@@ -190,13 +213,8 @@ def main() -> None:
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    async def run():
-        queue_task = asyncio.create_task(process_queue(app))
-        await app.run_polling()
-        queue_task.cancel()
-
     logger.info("Bot polling started")
-    asyncio.get_event_loop().run_until_complete(run())
+    app.run_polling()
 
 
 if __name__ == "__main__":
