@@ -132,15 +132,11 @@ YOUR TASK:
    - For any other required free-text field, provide a reasonable answer based on the profile.
 5. Submit the application form.
 6. Confirm the submission was successful (look for a confirmation message or page).
-7. Return a JSON object with exactly these keys:
-   {{
-     "job_title": "<title from the job posting>",
-     "company": "<company name>",
-     "status": "applied" or "failed",
-     "notes": "<brief summary: what was filled, any issues encountered>"
-   }}
+7. Return ONLY a valid JSON object - no additional text, explanations, or markdown. Format:
+   {{"job_title": "<title>", "company": "<company>", "status": "applied" or "failed", "notes": "<summary>"}}
 
-IMPORTANT:
+CRITICAL:
+- Output ONLY the JSON. Do not include any other text before or after the JSON.
 - Do NOT skip required fields — fill them all before submitting.
 - If the form requires creating an account or logging in, set status to "failed" and explain in notes.
 - If a CAPTCHA or bot-detection blocks submission, set status to "failed" and explain in notes.
