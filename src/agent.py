@@ -80,8 +80,9 @@ def _build_llm():
         from browser_use import ChatOpenAI
         return ChatOpenAI(
             model=model_name,
-            api_key=settings.minimax_api_key,
+            api_key="dummy",  # Required but we use header for auth
             base_url="https://api.minimax.io/v1",
+            extra_headers={"Authorization": f"Bearer {settings.minimax_api_key}"},
         )
 
     raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter, ollamacloud, minimax")
