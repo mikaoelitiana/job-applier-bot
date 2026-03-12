@@ -76,7 +76,15 @@ def _build_llm():
             base_url="https://cloud.ollama.ai/v1",
         )
 
-    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter, ollamacloud")
+    if provider == "minimax":
+        from browser_use import ChatOpenAI
+        return ChatOpenAI(
+            model=model_name,
+            api_key=settings.minimax_api_key,
+            base_url="https://api.minimax.io/v1",
+        )
+
+    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter, ollamacloud, minimax")
 
 
 def _load_profile() -> dict:
