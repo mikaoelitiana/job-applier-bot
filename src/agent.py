@@ -68,7 +68,15 @@ def _build_llm():
             base_url="https://openrouter.ai/api/v1",
         )
 
-    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter")
+    if provider == "ollamacloud":
+        from browser_use import ChatOpenAI
+        return ChatOpenAI(
+            model=model_name,
+            api_key=settings.ollamacloud_api_key,
+            base_url="https://cloud.ollama.ai/v1",
+        )
+
+    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter, ollamacloud")
 
 
 def _load_profile() -> dict:
