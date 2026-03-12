@@ -9,3 +9,6 @@ dist/
 # Personal assets — never commit these
 assets/resume.pdf
 assets/service_account.json
+
+# Local dev override — auto-picked up by Docker Compose and would break VPS deployment
+docker-compose.override.yml

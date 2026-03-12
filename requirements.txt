@@ -1,8 +1,7 @@
 # Browser automation
 browser-use==0.12.1
 
-# LLM providers via LiteLLM (unified interface for easy provider switching)
-litellm>=1.55.0
+# LLM providers (native adapters used by browser-use)
 anthropic>=0.40.0
 
 # Telegram bot
@@ -16,3 +15,6 @@ google-auth>=2.36.0
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
 python-dotenv>=1.0.0
+
+# File watcher for auto-reload during development
+watchdog>=4.0.0
