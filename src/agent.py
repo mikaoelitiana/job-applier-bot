@@ -52,7 +52,15 @@ def _build_llm():
         from browser_use import ChatOllama
         return ChatOllama(model=model_name)
 
-    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama")
+    if provider == "perplexity":
+        from browser_use import ChatOpenAI
+        return ChatOpenAI(
+            model=model_name,
+            api_key=settings.perplexity_api_key,
+            base_url="https://api.perplexity.ai",
+        )
+
+    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity")
 
 
 def _load_profile() -> dict:
