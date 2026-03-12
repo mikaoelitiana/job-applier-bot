@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     #   openrouter/google/gemini-2.0-flash-exp
     #   ollamacloud/llama3.3:70b
     #   minimax/MiniMax-M2.5
+    #   opencode/minimax-m2.5
     llm_model: str = Field(default="anthropic/claude-sonnet-4-6", alias="LLM_MODEL")
 
     # Anthropic
@@ -41,6 +42,9 @@ class Settings(BaseSettings):
 
     # MiniMax (optional alternative provider, OpenAI-compatible)
     minimax_api_key: str | None = Field(default=None, alias="MINIMAX_API_KEY")
+
+    # OpenCode Zen (optional alternative provider, OpenAI-compatible)
+    opencode_api_key: str | None = Field(default=None, alias="OPENCODE_API_KEY")
 
     # Telegram
     telegram_bot_token: str = Field(alias="TELEGRAM_BOT_TOKEN")
