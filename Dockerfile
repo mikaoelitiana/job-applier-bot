@@ -1,4 +1,3 @@
-# Use the official browser-use image which bundles Chromium + Playwright
 FROM python:3.12-slim
 
 # Install system dependencies required by Playwright/Chromium
