@@ -1,5 +1,6 @@
 # Browser automation
 browser-use==0.12.1
+playwright>=1.40.0
 
 # LLM providers (native adapters used by browser-use)
 anthropic>=0.40.0
