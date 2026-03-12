@@ -211,8 +211,27 @@ playwright install-deps chromium
 
 cp .env.example .env
 # Edit .env, then:
+
+# Run as Telegram bot
 python -m src.bot
+
+# Or run a single job application from CLI
+python -m src.bot https://example.com/jobs/senior-engineer
 ```
+
+### Run from CLI (single job)
+
+You can apply to a job directly without Telegram:
+
+```bash
+# Locally:
+python -m src.bot https://jobs.example.com/job/123
+
+# Inside the container:
+docker exec <container> python -m src.bot https://jobs.example.com/job/123
+```
+
+This runs the application and logs to Google Sheet, outputting the result to stdout.
 
 ---
 
