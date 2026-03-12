@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     allowed_telegram_user_ids: str = Field(default="", alias="ALLOWED_TELEGRAM_USER_IDS")
 
     # Google Sheets
+    # Provide either the raw JSON content or a path to the file
+    google_service_account_json: str | None = Field(default=None, alias="GOOGLE_SERVICE_ACCOUNT_JSON")
     google_service_account_file: str = Field(
         default="assets/service_account.json",
         alias="GOOGLE_SERVICE_ACCOUNT_FILE",
