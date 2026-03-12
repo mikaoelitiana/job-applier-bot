@@ -111,11 +111,13 @@ async def process_queue(application: Application) -> None:
 async def handle_result(result, url: str, update: Update, status_msg) -> None:
     if not result.company or result.company == "Unknown" or not result.job_title or result.job_title == "Unknown":
         logger.warning("Skipping sheet update: could not extract company/title from %s", url)
+        status = "✅ Applied" if result.success else "❌ Failed"
         await status_msg.edit_text(
             f"Application {'submitted' if result.success else 'failed'} but could not extract company/name — not logging to sheet.\n\n"
             f"Job: {result.job_title}\n"
             f"Company: {result.company}\n"
-            f"Reason: {result.notes}",
+            f"Reason: {result.notes}\n\n"
+            f"*Status:* {status}",
             parse_mode="Markdown",
         )
         return
@@ -139,6 +141,7 @@ async def handle_result(result, url: str, update: Update, status_msg) -> None:
             f"*Job:* {result.job_title}\n"
             f"*Company:* {result.company}\n"
             f"*Notes:* {result.notes}\n\n"
+            f"*Status:* ✅ Applied\n\n"
             f"{sheet_status}"
         )
     else:
@@ -147,6 +150,7 @@ async def handle_result(result, url: str, update: Update, status_msg) -> None:
             f"*Job:* {result.job_title}\n"
             f"*Company:* {result.company}\n"
             f"*Reason:* {result.notes}\n\n"
+            f"*Status:* ❌ Failed\n\n"
             f"{sheet_status}"
         )
 
