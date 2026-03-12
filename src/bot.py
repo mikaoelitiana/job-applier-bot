@@ -192,11 +192,17 @@ def main() -> None:
 
     async def run():
         queue_task = asyncio.create_task(process_queue(app))
-        await app.run_polling()
-        queue_task.cancel()
+        try:
+            await app.run_polling()
+        finally:
+            queue_task.cancel()
+            try:
+                await queue_task
+            except asyncio.CancelledError:
+                pass
 
     logger.info("Bot polling started")
-    asyncio.get_event_loop().run_until_complete(run())
+    asyncio.run(run())
 
 
 if __name__ == "__main__":
