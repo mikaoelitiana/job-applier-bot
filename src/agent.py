@@ -136,6 +136,7 @@ async def apply_to_job(url: str) -> ApplicationResult:
             task=task,
             llm=llm,
             browser=browser,
+            available_file_paths=[str(Path(resume_path).resolve())],
         )
         result = await agent.run()
 
