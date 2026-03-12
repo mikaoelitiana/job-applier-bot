@@ -123,9 +123,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 def main() -> None:
+    handlers: list[logging.Handler] = [logging.StreamHandler()]
+
+    log_file = settings.log_file
+    if log_file:
+        from logging.handlers import RotatingFileHandler
+        import os
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        handlers.append(
+            RotatingFileHandler(
+                log_file,
+                maxBytes=5 * 1024 * 1024,  # 5 MB per file
+                backupCount=3,
+                encoding="utf-8",
+            )
+        )
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s — %(message)s",
+        handlers=handlers,
     )
 
     app = (
