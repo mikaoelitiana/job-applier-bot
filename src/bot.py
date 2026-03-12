@@ -171,5 +171,81 @@ def main() -> None:
     app.run_polling()
 
 
-if __name__ == "__main__":
-    main()
+async def run_cli(url: str) -> None:
+    """Run a single job application from CLI."""
+    import asyncio
+    from src.agent import apply_to_job
+    from src.sheets import ApplicationRecord, append_application
+
+    logger.info("Running CLI job application for: %s", url)
+
+    result = await apply_to_job(url)
+
+    print(f"\n{'='*50}")
+    print(f"Result: {'SUCCESS' if result.success else 'FAILED'}")
+    print(f"Job: {result.job_title}")
+    print(f"Company: {result.company}")
+    print(f"Notes: {result.notes}")
+    print(f"{'='*50}\n")
+
+    if result.company and result.company != "Unknown" and result.job_title and result.job_title != "Unknown":
+        record = ApplicationRecord(
+            job_title=result.job_title,
+            url=url,
+            company=result.company,
+            status="applied" if result.success else "failed",
+        )
+        append_application(record)
+        print("Logged to Google Sheet.")
+    else:
+        print("Skipped Google Sheet (company/title unknown).")
+
+
+def main():
+    import sys
+    import os
+
+    # Setup logging first
+    handlers: list[logging.Handler] = [logging.StreamHandler()]
+
+    log_file = settings.log_file
+    if log_file:
+        from logging.handlers import RotatingFileHandler
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        handlers.append(
+            RotatingFileHandler(
+                log_file,
+                maxBytes=5 * 1024 * 1024,
+                backupCount=3,
+                encoding="utf-8",
+            )
+        )
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s — %(message)s",
+        handlers=handlers,
+    )
+
+    # CLI mode: pass a URL as argument
+    if len(sys.argv) > 1:
+        url = sys.argv[1]
+        if not url.startswith("http"):
+            print(f"Error: '{url}' is not a valid URL (must start with http:// or https://)")
+            sys.exit(1)
+        asyncio.run(run_cli(url))
+        return
+
+    # Telegram bot mode
+    app = (
+        Application.builder()
+        .token(settings.telegram_bot_token)
+        .build()
+    )
+
+    app.add_handler(CommandHandler("start", cmd_start))
+    app.add_handler(CommandHandler("help", cmd_help))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    logger.info("Bot polling started")
+    app.run_polling()
