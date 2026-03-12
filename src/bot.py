@@ -81,6 +81,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     try:
         result = await apply_to_job(url)
 
+        # Skip sheet update if we couldn't extract company or job title
+        if not result.company or result.company == "Unknown" or not result.job_title or result.job_title == "Unknown":
+            logger.warning("Skipping sheet update: could not extract company/title from %s", url)
+            await status_msg.edit_text(
+                f"Application {'submitted' if result.success else 'failed'} but could not extract company/name — not logging to sheet.\n\n"
+                f"Job: {result.job_title}\n"
+                f"Company: {result.company}\n"
+                f"Reason: {result.notes}",
+                parse_mode="Markdown",
+            )
+            return
+
         # Write to Google Sheets
         record = ApplicationRecord(
             job_title=result.job_title,
