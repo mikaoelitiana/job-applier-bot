@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     #   gemini/gemini-2.0-flash
     #   ollama/llama3
     #   perplexity/sonar-pro
+    #   openrouter/google/gemini-2.0-flash-exp
     llm_model: str = Field(default="anthropic/claude-sonnet-4-6", alias="LLM_MODEL")
 
     # Anthropic
@@ -29,6 +30,9 @@ class Settings(BaseSettings):
 
     # Perplexity (optional alternative provider, OpenAI-compatible)
     perplexity_api_key: str | None = Field(default=None, alias="PERPLEXITY_API_KEY")
+
+    # OpenRouter (optional alternative provider, OpenAI-compatible)
+    openrouter_api_key: str | None = Field(default=None, alias="OPENROUTER_API_KEY")
 
     # Telegram
     telegram_bot_token: str = Field(alias="TELEGRAM_BOT_TOKEN")
