@@ -86,9 +86,16 @@ A service account lets the bot write to your sheet without any OAuth browser flo
 3. Give it any name (e.g. `job-applier`)
 4. Skip the optional role/user steps and click **Done**
 
-**Step 4 — Configure credentials**
+**Step 4 — Download the JSON key**
 
-You have two options:
+1. Click the service account you just created
+2. Go to the **Keys** tab
+3. Click **Add Key → Create new key → JSON**
+4. The file downloads automatically to your computer
+
+**Step 5 — Configure credentials**
+
+You have two options for providing the key to the bot:
 
 **Option A — Env var (recommended for VPS/CI)**
 
@@ -100,14 +107,14 @@ GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"..."}
 
 A quick way to minify it:
 ```bash
-cat service_account.json | python3 -m json.tool --compact
+cat ~/Downloads/your-key-file.json | python3 -m json.tool --compact
 ```
 
 **Option B — File mount**
 
 Save the downloaded file as `assets/service_account.json`. Leave `GOOGLE_SERVICE_ACCOUNT_JSON` unset and the bot will fall back to reading the file via `GOOGLE_SERVICE_ACCOUNT_FILE` (defaults to `assets/service_account.json`).
 
-**Step 5 — Share your Google Sheet with the service account**
+**Step 6 — Share your Google Sheet with the service account**
 
 1. Open your Google Sheet
 2. Click **Share**
@@ -115,7 +122,7 @@ Save the downloaded file as `assets/service_account.json`. Leave `GOOGLE_SERVICE
 4. Give it **Editor** access
 5. Click **Send**
 
-**Step 6 — Copy the Sheet ID**
+**Step 7 — Copy the Sheet ID**
 
 From your sheet's URL:
 ```
@@ -123,7 +130,7 @@ https://docs.google.com/spreadsheets/d/THIS_IS_THE_SHEET_ID/edit
 ```
 Paste this value into `GOOGLE_SHEET_ID` in your `.env`.
 
-**Step 7 — Ensure your sheet has the correct header row**
+**Step 8 — Ensure your sheet has the correct header row**
 
 The first row of your target tab must be exactly:
 ```
