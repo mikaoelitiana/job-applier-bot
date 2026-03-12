@@ -249,3 +249,7 @@ def main():
 
     logger.info("Bot polling started")
     app.run_polling()
+
+
+if __name__ == "__main__":
+    main()
