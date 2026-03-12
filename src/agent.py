@@ -106,6 +106,13 @@ IMPORTANT:
 """
 
 
+def _chromium_executable() -> str:
+    """Return the path to the Playwright-installed Chromium binary."""
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as p:
+        return p.chromium.executable_path
+
+
 async def apply_to_job(url: str) -> ApplicationResult:
     """Run the browser agent to apply for the job at the given URL."""
     profile = _load_profile()
@@ -117,7 +124,12 @@ async def apply_to_job(url: str) -> ApplicationResult:
     task = _build_task(url, profile, resume_path)
     llm = _build_llm()
 
-    browser = BrowserSession(browser_profile=BrowserProfile(headless=True))
+    browser = BrowserSession(
+        browser_profile=BrowserProfile(
+            headless=True,
+            executable_path=_chromium_executable(),
+        )
+    )
 
     try:
         agent = Agent(
@@ -144,7 +156,7 @@ async def apply_to_job(url: str) -> ApplicationResult:
             notes=f"Agent error: {e}",
         )
     finally:
-        await browser.close()
+        await browser.stop()
 
 
 def _parse_agent_output(text: str, url: str) -> ApplicationResult:
