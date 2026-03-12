@@ -1,3 +1,4 @@
+import json
 import logging
 from dataclasses import dataclass
 
@@ -25,10 +26,16 @@ class ApplicationRecord:
 
 
 def _get_client() -> gspread.Client:
-    creds = Credentials.from_service_account_file(
-        settings.google_service_account_file,
-        scopes=SCOPES,
-    )
+    if settings.google_service_account_json:
+        creds = Credentials.from_service_account_info(
+            json.loads(settings.google_service_account_json),
+            scopes=SCOPES,
+        )
+    else:
+        creds = Credentials.from_service_account_file(
+            settings.google_service_account_file,
+            scopes=SCOPES,
+        )
     return gspread.authorize(creds)
 
 
