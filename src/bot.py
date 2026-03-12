@@ -192,13 +192,20 @@ def main() -> None:
 
     async def run():
         async with app:
+            await app.start()
+            await app.updater.start_polling()
+            logger.info("Bot running, waiting for messages...")
             queue_task = asyncio.create_task(process_queue(app))
-            polling_task = asyncio.create_task(app.updater.start_polling())
             try:
-                await asyncio.gather(queue_task, polling_task)
-            except asyncio.CancelledError:
+                await asyncio.Event().wait()
+            finally:
                 queue_task.cancel()
-                polling_task.cancel()
+                try:
+                    await queue_task
+                except asyncio.CancelledError:
+                    pass
+                await app.updater.stop()
+                await app.stop()
 
     logger.info("Bot polling started")
     asyncio.run(run())
