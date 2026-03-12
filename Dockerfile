@@ -21,3 +21,6 @@ COPY src/ src/
 # (resume.pdf, profile.json, service_account.json contain personal data)
 
 CMD ["python", "-m", "src.bot"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD pgrep -f "python -m src.bot" > /dev/null || exit 1
