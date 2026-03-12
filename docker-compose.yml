@@ -4,9 +4,12 @@ services:
     restart: unless-stopped
     env_file: .env
     volumes:
-      # Mount assets at runtime — these contain your personal data and must not be baked into the image
-      - ./assets:/app/assets:ro
+      # Named volume for assets — persists across deployments, must be populated once with docker cp
+      - applier_assets:/app/assets:ro
       # Mount source code so local changes are reflected without rebuilding the image
       - ./src:/app/src
     # Chromium inside the container needs a shared memory increase to avoid crashes
     shm_size: "2gb"
+
+volumes:
+  applier_assets:

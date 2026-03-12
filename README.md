@@ -175,7 +175,23 @@ docker compose logs -f
 docker compose down
 ```
 
-The container mounts the `assets/` directory at runtime — your personal files are never baked into the image.
+Assets are stored in a named Docker volume (`applier_assets`) that persists across deployments and container restarts. You need to populate it once after the first deployment.
+
+### Uploading assets to the volume (first time only)
+
+After the container has started at least once (so Docker creates the volume), copy your files into it:
+
+```bash
+# Copy resume
+docker cp assets/resume.pdf applier:/app/assets/resume.pdf
+
+# Copy profile (if you edited it locally)
+docker cp assets/profile.json applier:/app/assets/profile.json
+```
+
+If you set `GOOGLE_SERVICE_ACCOUNT_JSON` as an env var, you don't need to copy `service_account.json`.
+
+The files survive redeployments — you only need to repeat this if you want to update the resume or profile.
 
 ### Run locally (without Docker)
 
