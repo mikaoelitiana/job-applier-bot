@@ -1,14 +1,16 @@
 import json
+import importlib
 import logging
-import os
 from dataclasses import dataclass
 from pathlib import Path
-
-from browser_use import Agent, BrowserProfile, BrowserSession
 
 from src.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def _browser_use_module():
+    return importlib.import_module("browser_use")
 
 
 @dataclass
@@ -35,51 +37,44 @@ def _build_llm(model_override: str | None = None):
             f"LLM_MODEL must be in the form <provider>/<model>, got: {model_str!r}"
         )
     provider, model_name = model_str.split("/", 1)
+    browser_use = _browser_use_module()
 
     if provider == "anthropic":
-        from browser_use import ChatAnthropic
-        return ChatAnthropic(model=model_name)
+        return browser_use.ChatAnthropic(model=model_name)
 
     if provider == "openai":
-        from browser_use import ChatOpenAI
-        return ChatOpenAI(model=model_name)
+        return browser_use.ChatOpenAI(model=model_name)
 
     if provider == "gemini":
-        from browser_use import ChatGoogle
-        return ChatGoogle(model=model_name)
+        return browser_use.ChatGoogle(model=model_name)
 
     if provider == "ollama":
-        from browser_use import ChatOllama
-        return ChatOllama(model=model_name)
+        return browser_use.ChatOllama(model=model_name)
 
     if provider == "perplexity":
-        from browser_use import ChatOpenAI
-        return ChatOpenAI(
+        return browser_use.ChatOpenAI(
             model=model_name,
             api_key=settings.perplexity_api_key,
             base_url="https://api.perplexity.ai",
         )
 
     if provider == "openrouter":
-        from browser_use import ChatOpenAI
         model_id = "openrouter/free" if model_name == "free" else model_name
-        return ChatOpenAI(
+        return browser_use.ChatOpenAI(
             model=model_id,
             api_key=settings.openrouter_api_key,
             base_url="https://openrouter.ai/api/v1",
         )
 
     if provider == "ollamacloud":
-        from browser_use import ChatOpenAI
-        return ChatOpenAI(
+        return browser_use.ChatOpenAI(
             model=model_name,
             api_key=settings.ollamacloud_api_key,
             base_url="https://ollama.com/api/v1",
         )
 
     if provider == "minimax":
-        from browser_use import ChatOpenAI
-        return ChatOpenAI(
+        return browser_use.ChatOpenAI(
             model=model_name,
             api_key="dummy",  # Required but we use header for auth
             base_url="https://api.minimax.io/v1",
@@ -88,17 +83,18 @@ def _build_llm(model_override: str | None = None):
 
     if provider == "opencode":
         if model_name.startswith("claude-"):
-            from browser_use import ChatAnthropic
-            return ChatAnthropic(
+            return browser_use.ChatAnthropic(
                 model=model_name,
                 api_key=settings.opencode_api_key,
                 base_url="https://opencode.ai/zen/v1/messages",
             )
 
+        if settings.opencode_api_key is None:
+            raise ValueError("OPENCODE_API_KEY is required when using opencode provider")
+
         import os
         os.environ["OPENAI_API_KEY"] = settings.opencode_api_key
-        from browser_use import ChatOpenAI
-        return ChatOpenAI(
+        return browser_use.ChatOpenAI(
             model=model_name,
             base_url="https://opencode.ai/zen/v1",
         )
@@ -158,7 +154,8 @@ CRITICAL:
 
 async def _chromium_executable() -> str:
     """Return the path to the Playwright-installed Chromium binary."""
-    from playwright.async_api import async_playwright
+    playwright_module = importlib.import_module("playwright.async_api")
+    async_playwright = playwright_module.async_playwright
     async with async_playwright() as p:
         return p.chromium.executable_path
 
@@ -177,8 +174,9 @@ async def apply_to_job(url: str) -> ApplicationResult:
     if settings.fallback_llm_model.strip():
         fallback_llm = _build_llm(settings.fallback_llm_model)
 
-    browser = BrowserSession(
-        browser_profile=BrowserProfile(
+    browser_use = _browser_use_module()
+    browser = browser_use.BrowserSession(
+        browser_profile=browser_use.BrowserProfile(
             headless=True,
             executable_path=await _chromium_executable(),
         )
@@ -193,7 +191,7 @@ async def apply_to_job(url: str) -> ApplicationResult:
         )
         if fallback_llm is not None:
             agent_kwargs["fallback_llm"] = fallback_llm
-        agent = Agent(**agent_kwargs)
+        agent = browser_use.Agent(**agent_kwargs)
         result = await agent.run()
 
         # Extract the JSON summary the agent was asked to return
