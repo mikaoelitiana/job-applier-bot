@@ -62,8 +62,9 @@ def _build_llm(model_override: str | None = None):
 
     if provider == "openrouter":
         from browser_use import ChatOpenAI
+        model_id = "openrouter/free" if model_name == "free" else model_name
         return ChatOpenAI(
-            model=model_name,
+            model=model_id,
             api_key=settings.openrouter_api_key,
             base_url="https://openrouter.ai/api/v1",
         )

@@ -32,7 +32,7 @@ class BuildLlmRoutingTests(unittest.TestCase):
             llm_model="opencode/claude-sonnet-4-5",
             opencode_api_key="test-opencode-key",
             perplexity_api_key=None,
-            openrouter_api_key=None,
+            openrouter_api_key="test-openrouter-key",
             ollamacloud_api_key=None,
             minimax_api_key=None,
         )
@@ -52,6 +52,16 @@ class BuildLlmRoutingTests(unittest.TestCase):
         self.assertEqual(llm.kwargs["model"], "claude-sonnet-4-5")
         self.assertEqual(llm.kwargs["api_key"], "test-opencode-key")
         self.assertEqual(llm.kwargs["base_url"], "https://opencode.ai/zen/v1/messages")
+
+    def test_openrouter_free_uses_full_router_model_id(self) -> None:
+        agent_module = importlib.import_module("src.agent")
+
+        llm = agent_module._build_llm("openrouter/free")
+
+        self.assertIsInstance(llm, _FakeChatOpenAI)
+        self.assertEqual(llm.kwargs["model"], "openrouter/free")
+        self.assertEqual(llm.kwargs["api_key"], "test-openrouter-key")
+        self.assertEqual(llm.kwargs["base_url"], "https://openrouter.ai/api/v1")
 
 
 if __name__ == "__main__":
