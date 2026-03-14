@@ -99,7 +99,14 @@ def _build_llm(model_override: str | None = None):
             base_url="https://opencode.ai/zen/v1",
         )
 
-    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter, ollamacloud, minimax, opencode")
+    if provider == "together":
+        return browser_use.ChatOpenAI(
+            model=model_name,
+            api_key=settings.together_api_key,
+            base_url="https://api.together.xyz/v1",
+        )
+
+    raise ValueError(f"Unsupported LLM provider: {provider!r}. Supported: anthropic, openai, gemini, ollama, perplexity, openrouter, ollamacloud, minimax, opencode, together")
 
 
 def _load_profile() -> dict:
