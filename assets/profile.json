@@ -124,5 +124,5 @@
     }
   ],
   "cover_letter_intro": "Senior Full Stack Engineer with 10+ years building and scaling e-commerce and B2B platforms. I lead end-to-end delivery — architecture, implementation, and release — partnering with product and design to ship revenue-driving features and raise reliability through automated testing and CI/CD. Core stack: TypeScript, React/React Native, Node.js, Python, and GraphQL; cloud/devops with GCP, Kubernetes, and Terraform.",
-  "additional_notes": "Available for remote or hybrid roles. Open to both full-time and contract positions. No sponsorship required — EU citizen based in Paris."
+  "additional_notes": "Available for remote or hybrid roles. Open to both full-time and contract positions. No sponsorship required — EU citizen based in Paris.\n\nAI Tools & Workflow: I leverage AI coding agents (OpenCode) to plan and build software efficiently. I use beads for task structuring (epics with subtasks, priorities, and dependencies) and emdash as a multi-agent orchestrator (uses git worktree for parallel work without interference)."
 }
