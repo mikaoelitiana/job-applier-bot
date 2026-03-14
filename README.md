@@ -13,7 +13,7 @@ Telegram message (URL)
       → fills all fields using your profile
       → uploads your resume PDF
       → submits the form
-  → result is written to Google Sheets:  Company | Title | Status | Job Posting Link
+  → result is written to Google Sheets with all columns
   → bot replies with the outcome
 ```
 
@@ -21,12 +21,33 @@ Telegram message (URL)
 
 ---
 
+## Supported LLM providers
+
+The bot supports multiple LLM providers via the `LLM_MODEL` variable (format: `<provider>/<model-name>`):
+
+| Provider | Example Model | Required API Key |
+|----------|---------------|------------------|
+| Anthropic | `anthropic/claude-sonnet-4-6` | `ANTHROPIC_API_KEY` |
+| OpenAI | `openai/gpt-4o` | `OPENAI_API_KEY` |
+| Google Gemini | `gemini/gemini-2.0-flash` | `GEMINI_API_KEY` |
+| Perplexity | `perplexity/sonar-pro` | `PERPLEXITY_API_KEY` |
+| OpenRouter | `openrouter/google/gemini-2.0-flash-exp` | `OPENROUTER_API_KEY` |
+| Ollama Cloud | `ollamacloud/llama3.3:70b` | `OLLAMACLOUD_API_KEY` |
+| MiniMax | `minimax/MiniMax-M2.5` | `MINIMAX_API_KEY` |
+| OpenCode Zen | `opencode/claude-sonnet-4-5` | `OPENCODE_API_KEY` |
+| Together AI | `together/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` | `TOGETHER_API_KEY` |
+| Ollama (local) | `ollama/llama3` | (none) |
+
+You can also set a fallback model with `FALLBACK_LLM_MODEL` — used when the primary model returns invalid output.
+
+---
+
 ## Prerequisites
 
 - Docker and Docker Compose installed on your VPS (or local machine)
-- An Anthropic (or OpenAI / Gemini) API key
+- An Anthropic (or OpenAI / Gemini / Perplexity / OpenRouter / Ollama / MiniMax / OpenCode / Together) API key
 - A Telegram bot token
-- A Google Sheet with columns: `Company`, `Title`, `Status`, `Job Posting Link`
+- A Google Sheet with columns: `Company`, `Title`, `Status`, `Job Posting Link`, `Contact`, `Application Date`, `Interview Stage`, `Interviewer`, `Notes`
 - A Google Cloud service account with Sheets access
 
 ---
@@ -132,31 +153,12 @@ Paste this value into `GOOGLE_SHEET_ID` in your `.env`.
 
 **Step 8 — Ensure your sheet has the correct header row**
 
-The first row of your target tab must be exactly:
+The first row of your target tab must include these columns (the bot will create them automatically if the sheet is empty):
 ```
-Company | Title | Status | Job Posting Link
-```
-The bot will create this header automatically if the sheet is empty.
-
-### 5. Switching LLM providers
-
-Change one variable in `.env`:
-
-```bash
-# Anthropic (default)
-LLM_MODEL=anthropic/claude-sonnet-4-0
-
-# OpenAI
-LLM_MODEL=openai/gpt-4o
-
-# Google Gemini
-LLM_MODEL=gemini/gemini-flash-latest
-
-# Local (Ollama — must be running and accessible from the container)
-LLM_MODEL=ollama/llama3.1:8b
+Company | Title | Status | Job Posting Link | Contact | Application Date | Interview Stage | Interviewer | Notes
 ```
 
-Set the corresponding API key variable for whichever provider you choose.
+The default tab name is `Applications` — configure it via `GOOGLE_SHEET_TAB` in `.env`.
 
 ---
 
