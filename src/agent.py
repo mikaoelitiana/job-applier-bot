@@ -131,9 +131,10 @@ RESUME FILE PATH (for upload): {abs_resume}
 
 YOUR TASK:
 1. Navigate to this URL: {url}
-2. Read the full job description and note the job title and company name.
+2. Read the full job description and note the job title and company name. Detect the page language.
 3. Find the application form or "Apply" button. If there is an "Apply" button, click it.
 4. Fill in ALL required fields using the candidate profile above. Guidelines:
+    - Fill all form fields in the detected page language (e.g., if page is in French, use French labels like "Prénom" not "First Name").
     - For name fields, use full_name.
     - For email, phone, location fields, use the corresponding profile values.
     - For phone fields: if you see "Not a valid phone number" error, try the following formats:
