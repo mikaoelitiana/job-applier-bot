@@ -151,6 +151,7 @@ async def handle_result(result, url: str, update: Update, status_msg) -> None:
         url=url,
         company=result.company,
         status="Applied" if result.success else "Failed",
+        notes=result.notes if not result.success else "",
     )
     try:
         append_application(record)

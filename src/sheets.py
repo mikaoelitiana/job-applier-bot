@@ -15,7 +15,7 @@ SCOPES = [
 ]
 
 # Columns written to the sheet, in order — must match your sheet's header row exactly
-COLUMNS = ["Company", "Title", "Status", "Job Posting Link", "Contact", "Application Date"]
+COLUMNS = ["Company", "Title", "Status", "Job Posting Link", "Contact", "Application Date", "Interview Stage", "Interviewer", "Notes"]
 
 
 @dataclass
@@ -25,6 +25,7 @@ class ApplicationRecord:
     company: str
     status: str
     application_date: str = ""
+    notes: str = ""
 
 
 def _get_client() -> gspread.Client:
@@ -87,6 +88,9 @@ def append_application(record: ApplicationRecord) -> None:
             record.url,
             "",
             application_date,
+            "",
+            "",
+            record.notes,
         ]
 
         # Find first empty row and insert there
