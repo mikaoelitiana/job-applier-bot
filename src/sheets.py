@@ -15,7 +15,7 @@ SCOPES = [
 ]
 
 # Columns written to the sheet, in order — must match your sheet's header row exactly
-COLUMNS = ["Company", "Title", "Status", "Job Posting Link"]
+COLUMNS = ["Company", "Title", "Status", "Job Posting Link", "Contact", "Application Date"]
 
 
 @dataclass
@@ -24,6 +24,7 @@ class ApplicationRecord:
     url: str
     company: str
     status: str
+    application_date: str = ""
 
 
 def _get_client() -> gspread.Client:
@@ -54,7 +55,7 @@ def _find_first_empty_row(sheet: gspread.Worksheet) -> int:
     all_values = sheet.get_all_values()
     
     for idx, row in enumerate(all_values[1:], start=2):  # Skip header, 1-indexed
-        company, title, status, link = row[:4] if len(row) >= 4 else ["", "", "", ""]
+        company, title, status, link, contact, date = row[:6] if len(row) >= 6 else ["", "", "", "", "", ""]
         if not company.strip() and not title.strip() and not link.strip():
             return idx
     
@@ -77,11 +78,15 @@ def append_application(record: ApplicationRecord) -> None:
 
         _ensure_header(sheet)
 
+        application_date = record.application_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
         row = [
             record.company,
             record.job_title,
             record.status,
             record.url,
+            "",
+            application_date,
         ]
 
         # Find first empty row and insert there
