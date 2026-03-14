@@ -83,11 +83,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if is_processing:
         status_msg = await update.message.reply_text(
             f"Added to queue (position {queue_size + 1}):\n{url}\n\n"
-            "Current job is processing, yours will start after."
+            "Current job is processing, yours will start after.\n\n"
+            "*Status:* ⏳ Pending"
         )
     else:
         status_msg = await update.message.reply_text(
-            f"Starting application for:\n{url}\n\nThis may take a few minutes..."
+            f"Starting application for:\n{url}\n\n"
+            "This may take a few minutes...\n\n"
+            "*Status:* ⏳ Pending"
         )
 
     await job_queue.put((url, update, status_msg))
@@ -147,7 +150,7 @@ async def handle_result(result, url: str, update: Update, status_msg) -> None:
         job_title=result.job_title,
         url=url,
         company=result.company,
-        status="applied" if result.success else "failed",
+        status="Applied" if result.success else "Failed",
     )
     try:
         append_application(record)
