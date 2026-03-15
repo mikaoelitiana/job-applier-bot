@@ -1,6 +1,7 @@
 import json
 import importlib
 import logging
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -19,6 +20,7 @@ class ApplicationResult:
     job_title: str
     company: str
     notes: str
+    screenshot_path: str | None = None
 
 
 def _build_llm(model_override: str | None = None):
@@ -168,6 +170,23 @@ async def _chromium_executable() -> str:
         return p.chromium.executable_path
 
 
+async def _take_screenshot(browser) -> str | None:
+    """Take a screenshot of the current page and save to a temp file."""
+    try:
+        page = await browser.get_current_page()
+        if page is None:
+            return None
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as f:
+            screenshot_path = f.name
+
+        await page.screenshot(path=screenshot_path, full_page=True)
+        return screenshot_path
+    except Exception as e:
+        logger.warning("Failed to take screenshot: %s", e)
+        return None
+
+
 async def apply_to_job(url: str) -> ApplicationResult:
     """Run the browser agent to apply for the job at the given URL."""
     profile = _load_profile()
@@ -208,6 +227,11 @@ async def apply_to_job(url: str) -> ApplicationResult:
             output_text = result.final_result() or ""
 
         parsed = _parse_agent_output(output_text, url)
+
+        if parsed.success:
+            screenshot_path = await _take_screenshot(browser)
+            parsed.screenshot_path = screenshot_path
+
         return parsed
 
     except Exception as e:
@@ -217,6 +241,7 @@ async def apply_to_job(url: str) -> ApplicationResult:
             job_title="Unknown",
             company="Unknown",
             notes=f"Agent error: {e}",
+            screenshot_path=None,
         )
     finally:
         await browser.stop()
@@ -247,4 +272,5 @@ def _parse_agent_output(text: str, url: str) -> ApplicationResult:
         job_title="Unknown",
         company="Unknown",
         notes=f"Agent did not return valid JSON. Output: {text[:500]}" if text else "Agent returned no output",
+        screenshot_path=None,
     )
