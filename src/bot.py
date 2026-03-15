@@ -1,8 +1,9 @@
 import asyncio
 import logging
 import re
+from pathlib import Path
 
-from telegram import Update
+from telegram import InputMediaPhoto, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 from src.agent import apply_to_job
@@ -179,7 +180,16 @@ async def handle_result(result, url: str, update: Update, status_msg) -> None:
             f"{sheet_status}"
         )
 
-    await status_msg.edit_text(reply, parse_mode="Markdown")
+    if result.success and result.screenshot_path and Path(result.screenshot_path).exists():
+        try:
+            with open(result.screenshot_path, "rb") as photo:
+                await status_msg.reply_photo(photo=photo, caption=reply, parse_mode="Markdown")
+            await status_msg.delete()
+        except Exception as e:
+            logger.warning("Failed to send screenshot: %s", e)
+            await status_msg.edit_text(reply, parse_mode="Markdown")
+    else:
+        await status_msg.edit_text(reply, parse_mode="Markdown")
 
 
 def main() -> None:
