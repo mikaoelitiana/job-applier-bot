@@ -75,11 +75,18 @@ class Settings(BaseSettings):
     # Log file — written inside the assets volume so logs survive container restarts
     log_file: str = Field(default="/app/assets/applier.log", alias="LOG_FILE")
 
+    # Job timeout in minutes — if the job doesn't complete in this time, it's marked as failed
+    job_timeout_minutes: int = Field(default=10, alias="JOB_TIMEOUT_MINUTES")
+
     @property
     def allowed_user_ids(self) -> list[int]:
         if not self.allowed_telegram_user_ids.strip():
             return []
         return [int(uid.strip()) for uid in self.allowed_telegram_user_ids.split(",") if uid.strip()]
+
+    @property
+    def job_timeout_seconds(self) -> int:
+        return self.job_timeout_minutes * 60
 
 
 settings = Settings()
