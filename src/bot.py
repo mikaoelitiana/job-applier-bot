@@ -6,7 +6,7 @@ from pathlib import Path
 from telegram import InputMediaPhoto, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
-from src.agent import apply_to_job
+from src.agent import ApplicationResult, apply_to_job
 from src.config import settings
 from src.sheets import ApplicationRecord, append_application
 
@@ -102,7 +102,20 @@ async def process_queue() -> None:
         try:
             url, update, status_msg = await job_queue.get()
             is_processing = True
-            result = await apply_to_job(url)
+            try:
+                result = await asyncio.wait_for(
+                    apply_to_job(url),
+                    timeout=settings.job_timeout_seconds,
+                )
+            except asyncio.TimeoutError:
+                logger.warning("Job timed out after %s seconds: %s", settings.job_timeout_seconds, url)
+                result = ApplicationResult(
+                    success=False,
+                    job_title="Unknown",
+                    company="Unknown",
+                    notes=f"Job timed out after {settings.job_timeout_minutes} minutes",
+                    screenshot_path=None,
+                )
             await handle_result(result, url, update, status_msg)
         except asyncio.CancelledError:
             raise
