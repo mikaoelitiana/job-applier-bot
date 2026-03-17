@@ -63,6 +63,45 @@ class BuildLlmRoutingTests(unittest.TestCase):
         self.assertEqual(llm.kwargs["api_key"], "test-openrouter-key")
         self.assertEqual(llm.kwargs["base_url"], "https://openrouter.ai/api/v1")
 
+    def test_opencode_non_claude_uses_openai_client_with_api_key(self) -> None:
+        """opencode provider with a non-Claude model must pass api_key directly
+        to ChatOpenAI instead of mutating os.environ."""
+        import sys
+        import types
+
+        if "src.agent" in sys.modules:
+            del sys.modules["src.agent"]
+
+        fake_browser_use = types.ModuleType("browser_use")
+        fake_browser_use.Agent = object
+        fake_browser_use.BrowserProfile = object
+        fake_browser_use.BrowserSession = object
+        fake_browser_use.ChatAnthropic = _FakeChatAnthropic
+        fake_browser_use.ChatOpenAI = _FakeChatOpenAI
+        sys.modules["browser_use"] = fake_browser_use
+
+        fake_config = types.ModuleType("src.config")
+        fake_config.settings = types.SimpleNamespace(
+            llm_model="opencode/gpt-4o",
+            opencode_api_key="test-opencode-key",
+            perplexity_api_key=None,
+            openrouter_api_key=None,
+            ollamacloud_api_key=None,
+            minimax_api_key=None,
+        )
+        sys.modules["src.config"] = fake_config
+
+        agent_module = importlib.import_module("src.agent")
+        llm = agent_module._build_llm()
+
+        self.assertIsInstance(llm, _FakeChatOpenAI)
+        self.assertEqual(llm.kwargs["model"], "gpt-4o")
+        self.assertEqual(llm.kwargs["api_key"], "test-opencode-key")
+        self.assertEqual(llm.kwargs["base_url"], "https://opencode.ai/zen/v1")
+
+        import os
+        self.assertNotIn("OPENAI_API_KEY", os.environ, "api_key must not be set via os.environ")
+
 
 if __name__ == "__main__":
     unittest.main()
