@@ -1,6 +1,7 @@
 import json
 import importlib
 import logging
+import re
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -94,10 +95,9 @@ def _build_llm(model_override: str | None = None):
         if settings.opencode_api_key is None:
             raise ValueError("OPENCODE_API_KEY is required when using opencode provider")
 
-        import os
-        os.environ["OPENAI_API_KEY"] = settings.opencode_api_key
         return browser_use.ChatOpenAI(
             model=model_name,
+            api_key=settings.opencode_api_key,
             base_url="https://opencode.ai/zen/v1",
         )
 
@@ -162,12 +162,18 @@ CRITICAL:
 """
 
 
+_chromium_path: str | None = None
+
+
 async def _chromium_executable() -> str:
-    """Return the path to the Playwright-installed Chromium binary."""
-    playwright_module = importlib.import_module("playwright.async_api")
-    async_playwright = playwright_module.async_playwright
-    async with async_playwright() as p:
-        return p.chromium.executable_path
+    """Return the path to the Playwright-installed Chromium binary (cached)."""
+    global _chromium_path
+    if _chromium_path is None:
+        playwright_module = importlib.import_module("playwright.async_api")
+        async_playwright = playwright_module.async_playwright
+        async with async_playwright() as p:
+            _chromium_path = p.chromium.executable_path
+    return _chromium_path
 
 
 async def _take_screenshot(browser) -> str | None:
@@ -249,21 +255,40 @@ async def apply_to_job(url: str) -> ApplicationResult:
 
 def _parse_agent_output(text: str, url: str) -> ApplicationResult:
     """Extract structured data from the agent's final text output."""
-    import re
+    def _make_result(data: dict) -> ApplicationResult:
+        return ApplicationResult(
+            success=data.get("status") == "applied",
+            job_title=data.get("job_title", "Unknown"),
+            company=data.get("company", "Unknown"),
+            notes=data.get("notes", ""),
+        )
 
-    # Try to find a JSON block in the output
-    json_match = re.search(r"\{[^{}]*\"job_title\"[^{}]*\}", text, re.DOTALL)
-    if json_match:
-        try:
-            data = json.loads(json_match.group())
-            return ApplicationResult(
-                success=data.get("status") == "applied",
-                job_title=data.get("job_title", "Unknown"),
-                company=data.get("company", "Unknown"),
-                notes=data.get("notes", ""),
-            )
-        except json.JSONDecodeError:
-            pass
+    # Try direct parse first (agent returned clean JSON)
+    try:
+        data = json.loads(text.strip())
+        if "job_title" in data:
+            return _make_result(data)
+    except (json.JSONDecodeError, AttributeError):
+        pass
+
+    # Scan for balanced JSON objects containing job_title
+    for match in re.finditer(r"\{", text):
+        start = match.start()
+        depth, i = 0, start
+        while i < len(text):
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+            if depth == 0:
+                try:
+                    data = json.loads(text[start : i + 1])
+                    if "job_title" in data:
+                        return _make_result(data)
+                except json.JSONDecodeError:
+                    pass
+                break
+            i += 1
 
     # Fallback: could not parse structured output
     logger.error("Could not parse structured JSON from agent output for %s. Raw output:\n%s", url, text)
