@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import re
 from pathlib import Path
@@ -51,9 +52,51 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "2. Find and fill the application form using your profile\n"
         "3. Upload your resume if a file upload is present\n"
         "4. Submit the form\n"
-        "5. Log the result to your Google Sheet",
+        "5. Log the result to your Google Sheet\n\n"
+        "*Uploading files*\n"
+        "Send a *PDF* file → saved as your resume\n"
+        "Send a *JSON* file → saved as your profile",
         parse_mode="Markdown",
     )
+
+
+async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
+    if not _is_allowed(user.id):
+        await update.message.reply_text("Unauthorized.")
+        return
+
+    doc = update.message.document
+    mime = doc.mime_type or ""
+    name = doc.file_name or ""
+
+    if mime == "application/pdf" or name.lower().endswith(".pdf"):
+        dest = Path(settings.resume_path)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        tg_file = await doc.get_file()
+        await tg_file.download_to_drive(str(dest))
+        await update.message.reply_text(f"Resume saved to `{dest}`.", parse_mode="Markdown")
+        logger.info("Resume uploaded by user %s → %s", user.id, dest)
+
+    elif mime == "application/json" or name.lower().endswith(".json"):
+        dest = Path(settings.profile_path)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        tg_file = await doc.get_file()
+        raw = await tg_file.download_as_bytearray()
+        try:
+            json.loads(raw)  # validate JSON before saving
+        except json.JSONDecodeError as e:
+            await update.message.reply_text(f"Invalid JSON: {e}")
+            return
+        dest.write_bytes(raw)
+        await update.message.reply_text(f"Profile saved to `{dest}`.", parse_mode="Markdown")
+        logger.info("Profile uploaded by user %s → %s", user.id, dest)
+
+    else:
+        await update.message.reply_text(
+            "Unsupported file type. Send a *PDF* for your resume or a *JSON* for your profile.",
+            parse_mode="Markdown",
+        )
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -238,6 +281,7 @@ def main() -> None:
 
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
+    app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     logger.info("Bot polling started")

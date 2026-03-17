@@ -66,7 +66,18 @@ Edit `.env` and fill in all required values (see comments in the file).
 
 ### 2. Add your assets
 
-Place your files in the `assets/` directory:
+The bot needs your resume and profile to fill application forms. You can provide them in two ways:
+
+**Option A — Upload via Telegram (easiest)**
+
+Once the bot is running, simply send the files directly in the chat:
+
+- Send a **PDF file** → saved as your resume
+- Send a **JSON file** → saved as your profile
+
+**Option B — Place files manually**
+
+Put your files in the `assets/` directory before starting the bot:
 
 | File | Description |
 |------|-------------|
@@ -179,19 +190,26 @@ docker compose down
 
 Assets are stored in a named Docker volume (`applier_assets`) that persists across deployments and container restarts. You need to populate it once after the first deployment.
 
-### Uploading assets to the volume (first time only)
+### Uploading assets to the volume
 
-Assets are stored in a named Docker volume (`applier_assets`) which cannot be written to directly via `scp`. The process is two steps: upload to a temporary location on the VPS, then copy into the volume.
+**Recommended — send files via Telegram**
 
-**Step 1 — Upload from your local machine via scp:**
+Once the container is running, send your files directly to the bot in Telegram:
+
+- Send a **PDF file** → saved as your resume
+- Send a **JSON file** → saved as your profile
+
+The bot confirms each upload and the files are stored in the persistent `applier_assets` volume immediately.
+
+**Alternative — copy files with docker cp**
+
+If you prefer to copy files from outside the container:
 
 ```bash
+# Upload from your local machine to the VPS first
 scp assets/resume.pdf assets/profile.json user@your-vps-ip:/tmp/
-```
 
-**Step 2 — Copy from the VPS into the container volume:**
-
-```bash
+# Then copy from the VPS into the running container
 docker cp /tmp/resume.pdf applier:/app/assets/resume.pdf
 docker cp /tmp/profile.json applier:/app/assets/profile.json
 ```
@@ -200,7 +218,7 @@ The container must be running before `docker cp` will work (the volume is create
 
 If you set `GOOGLE_SERVICE_ACCOUNT_JSON` as an env var, you don't need to copy `service_account.json`.
 
-The files survive redeployments — you only need to repeat this if you want to update the resume or profile.
+Files survive redeployments — repeat whichever method you prefer whenever you want to update your resume or profile.
 
 ### Run locally (without Docker)
 
@@ -220,13 +238,18 @@ python -m src.bot
 
 ## Usage
 
-Once the bot is running, open Telegram and send it a job posting URL:
+### Upload your resume and profile
 
-```
-https://example.com/careers/senior-engineer-123
-```
+Send files directly to the bot to update your assets at any time:
 
-The bot will reply with a progress message, then update it with the outcome:
+- Send a **PDF** → replaces your resume (`assets/resume.pdf`)
+- Send a **JSON** → replaces your profile (`assets/profile.json`)
+
+The bot validates the JSON before saving and confirms each upload.
+
+### Apply to a job
+
+Send a job posting URL:
 
 ```
 Application submitted!
