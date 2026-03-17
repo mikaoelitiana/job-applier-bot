@@ -35,7 +35,7 @@ The bot supports multiple LLM providers via the `LLM_MODEL` variable (format: `<
 | Ollama Cloud | `ollamacloud/llama3.3:70b` | `OLLAMACLOUD_API_KEY` |
 | MiniMax | `minimax/MiniMax-M2.5` | `MINIMAX_API_KEY` |
 | OpenCode Zen | `opencode/claude-sonnet-4-5` | `OPENCODE_API_KEY` |
-| Together AI | `together/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` | `TOGETHER_API_KEY` |
+| Together AI | `together/moonshotai/Kimi-K2.5` | `TOGETHER_API_KEY` |
 | Ollama (local) | `ollama/llama3` | (none) |
 
 You can also set a fallback model with `FALLBACK_LLM_MODEL` — used when the primary model returns invalid output.
