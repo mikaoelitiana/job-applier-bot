@@ -143,8 +143,9 @@ YOUR TASK:
       * If country code is already selected (e.g., +33 for France), remove the leading 0 from the number (e.g., 622456471 instead of 0622456471)
       * If no country code is selected, add the proper country code without the leading 0 (e.g., +33622456471)
     - For resume/CV upload fields, upload the file at: {abs_resume}
-   - For cover letter fields, write a tailored 2-3 paragraph cover letter using the candidate's
+   - For cover letter text fields, write a tailored 2-3 paragraph cover letter using the candidate's
      cover_letter_intro and skills, customized to match the job description you read.
+   - For cover letter file upload fields, skip them — no cover letter file is available.
    - For salary/compensation fields, use the desired_salary values.
    - For "how did you hear about us" or similar optional questions, answer "Online job board".
    - For any other required free-text field, provide a reasonable answer based on the profile.
