@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     #   ollamacloud/llama3.3:70b
     #   minimax/MiniMax-M2.5
     #   opencode/minimax-m2.5
-    #   together/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+    #   together/moonshotai/Kimi-K2.5
     llm_model: str = Field(default="anthropic/claude-sonnet-4-6", alias="LLM_MODEL")
     fallback_llm_model: str = Field(default="", alias="FALLBACK_LLM_MODEL")
 
