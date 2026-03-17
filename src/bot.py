@@ -168,6 +168,7 @@ async def process_queue() -> None:
                 f"An unexpected error occurred:\n{e}\n\nCheck the logs for details."
             )
         finally:
+            job_queue.task_done()
             is_processing = False
 
 
@@ -208,7 +209,7 @@ async def handle_result(result, url: str, update: Update, status_msg) -> None:
         url=url,
         company=result.company,
         status="Applied" if result.success else "Failed",
-        notes="Applied by AI agent" if result.success else result.notes,
+        notes=result.notes or "Applied by AI agent",
     )
     try:
         append_application(record)
@@ -244,6 +245,8 @@ async def handle_result(result, url: str, update: Update, status_msg) -> None:
         except Exception as e:
             logger.warning("Failed to send screenshot: %s", e)
             await status_msg.edit_text(reply, parse_mode="Markdown")
+        finally:
+            Path(result.screenshot_path).unlink(missing_ok=True)
     else:
         await status_msg.edit_text(reply, parse_mode="Markdown")
 
