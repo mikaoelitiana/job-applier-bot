@@ -81,8 +81,8 @@ You can also set a fallback model with `FALLBACK_LLM_MODEL` — used when the pr
 ### 1. Clone the repo and create your `.env`
 
 ```bash
-git clone https://github.com/mikaoelitiana/applier.git
-cd applier
+git clone https://github.com/mikaoelitiana/job-applier-bot.git
+cd job-applier-bot
 cp .env.example .env
 ```
 
