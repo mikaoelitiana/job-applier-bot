@@ -258,9 +258,9 @@ scp assets/resume.pdf assets/profile.json user@your-vps-ip:/tmp/
 docker compose ps
 
 # Then copy from the VPS into the running container
-# Replace 'applier-applier-1' with your actual container name from the command above
-docker cp /tmp/resume.pdf applier-applier-1:/app/assets/resume.pdf
-docker cp /tmp/profile.json applier-applier-1:/app/assets/profile.json
+# Replace 'job-applier-bot-applier-1' with your actual container name from the command above
+docker cp /tmp/resume.pdf job-applier-bot-applier-1:/app/assets/resume.pdf
+docker cp /tmp/profile.json job-applier-bot-applier-1:/app/assets/profile.json
 ```
 
 The container must be running before `docker cp` will work (the volume is created on first start).
@@ -354,7 +354,7 @@ Logged to Google Sheet (marked as failed).
 ## Project structure
 
 ```
-applier/
+job-applier-bot/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
