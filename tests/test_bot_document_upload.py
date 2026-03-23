@@ -13,6 +13,8 @@ def _make_fake_telegram():
     telegram = types.ModuleType("telegram")
     telegram.Update = object
     telegram.InputMediaPhoto = object
+    telegram.InlineKeyboardButton = MagicMock()
+    telegram.InlineKeyboardMarkup = MagicMock()
 
     ContextTypes = MagicMock()
     ContextTypes.DEFAULT_TYPE = None
@@ -20,6 +22,7 @@ def _make_fake_telegram():
     ext = types.ModuleType("telegram.ext")
     ext.Application = MagicMock()
     ext.CommandHandler = MagicMock()
+    ext.CallbackQueryHandler = MagicMock()
     ext.ContextTypes = ContextTypes
     ext.MessageHandler = MagicMock()
     ext.filters = MagicMock()
@@ -33,12 +36,18 @@ def _make_fake_deps(resume_path: str, profile_path: str, allowed_ids: list[int])
     fake_agent = types.ModuleType("src.agent")
     fake_agent.ApplicationResult = object
     fake_agent.apply_to_job = AsyncMock()
+    fake_agent._load_profile = MagicMock(return_value={})
     sys.modules["src.agent"] = fake_agent
 
     fake_sheets = types.ModuleType("src.sheets")
     fake_sheets.ApplicationRecord = object
     fake_sheets.append_application = MagicMock()
     sys.modules["src.sheets"] = fake_sheets
+
+    fake_job_validator = types.ModuleType("src.job_validator")
+    fake_job_validator.extract_job_description = AsyncMock(return_value=None)
+    fake_job_validator.validate_job_match = AsyncMock(return_value=None)
+    sys.modules["src.job_validator"] = fake_job_validator
 
     fake_config = types.ModuleType("src.config")
     fake_config.settings = types.SimpleNamespace(
@@ -81,7 +90,7 @@ def _make_update(user_id: int, mime_type: str, file_name: str, file_bytes: bytes
 class DocumentUploadTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         # Wipe cached modules so each test gets a fresh import
-        for mod in ("src.bot", "src.agent", "src.config", "src.sheets",
+        for mod in ("src.bot", "src.agent", "src.config", "src.sheets", "src.job_validator",
                     "telegram", "telegram.ext"):
             sys.modules.pop(mod, None)
 
@@ -96,7 +105,7 @@ class DocumentUploadTests(unittest.IsolatedAsyncioTestCase):
 
     def tearDown(self):
         self._tmpdir.cleanup()
-        for mod in ("src.bot", "src.agent", "src.config", "src.sheets",
+        for mod in ("src.bot", "src.agent", "src.config", "src.sheets", "src.job_validator",
                     "telegram", "telegram.ext"):
             sys.modules.pop(mod, None)
 

@@ -4,6 +4,7 @@ playwright>=1.40.0
 
 # LLM providers (native adapters used by browser-use)
 anthropic>=0.40.0
+langchain-anthropic>=0.3.0
 
 # Telegram bot
 python-telegram-bot>=21.0
