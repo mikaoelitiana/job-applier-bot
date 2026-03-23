@@ -1,21 +1,33 @@
-# Job Applier
+# Job Applier Bot
 
-An AI agent that applies to jobs on your behalf. Send a job posting URL to a Telegram bot — the agent opens the page, reads the description, fills the application form, uploads your resume, submits, and logs the result to a Google Sheet.
+**Automate your job applications with AI.** Send a job URL via Telegram → AI agent fills the form, uploads your resume, submits it, and logs everything to Google Sheets. You don't touch a single form field.
+
+Perfect for job seekers who want to apply to multiple positions without the repetitive work of filling out the same information over and over.
 
 ## How it works
 
 ```
-Telegram message (URL)
-  → bot receives it
-  → browser-use agent navigates to the URL
-      → reads job description
-      → finds the application form
-      → fills all fields using your profile
-      → uploads your resume PDF
-      → submits the form
-  → result is written to Google Sheets with all columns
-  → bot replies with the outcome
+1. You send a job URL to your Telegram bot
+   ↓
+2. The bot launches a browser-use agent that:
+   • Opens the job posting in a real Chromium browser
+   • Reads the job description
+   • Finds the application form on the page
+   • Fills all fields using your profile data
+   • Uploads your resume PDF
+   • Clicks submit
+   ↓
+3. The agent logs the result to your Google Sheet:
+   • Company name, job title, status (Applied/Failed)
+   • Job posting link, application date
+   • Notes (success message or failure reason)
+   ↓
+4. The bot replies to you in Telegram with:
+   • ✅ Application submitted! (with job details)
+   • OR ❌ Application failed (with reason)
 ```
+
+**You don't need to fill any forms manually** — the agent does everything from reading the job description to clicking submit, then logs the outcome to your Google Sheet automatically.
 
 **Stack:** [browser-use](https://github.com/browser-use/browser-use) · python-telegram-bot · gspread · Docker
 
@@ -186,14 +198,23 @@ https://docs.google.com/spreadsheets/d/THIS_IS_THE_SHEET_ID/edit
 ```
 Paste this value into `GOOGLE_SHEET_ID` in your `.env`.
 
-**Step 8 — Ensure your sheet has the correct header row**
+**Step 8 — Understand what gets logged to your sheet**
 
-The first row of your target tab must include these columns (the bot will create them automatically if the sheet is empty):
-```
-Company | Title | Status | Job Posting Link | Contact | Application Date | Interview Stage | Interviewer | Notes
-```
+Each application creates a new row in your Google Sheet with these columns:
 
-The default tab name is `Applications` — configure it via `GOOGLE_SHEET_TAB` in `.env`.
+| Column | Example Value | Description |
+|--------|--------------|-------------|
+| **Company** | DeepJudge | Extracted from job posting |
+| **Title** | Frontend Engineer | Job title from posting |
+| **Status** | ✅ Applied | Applied (success) or Failed (with reason) |
+| **Job Posting Link** | https://jobs.ashbyhq.com/... | Original URL you sent |
+| **Contact** | hr@company.com | If found on the page |
+| **Application Date** | 2026-03-15 | When the application was submitted |
+| **Interview Stage** | - | (Empty initially, update manually later) |
+| **Interviewer** | - | (Empty initially, update manually later) |
+| **Notes** | Application submitted successfully | Success message or failure reason |
+
+The bot will **automatically create these columns** if your sheet is empty. The default tab name is `Applications` (configure via `GOOGLE_SHEET_TAB` in `.env`).
 
 ---
 
@@ -277,24 +298,28 @@ The bot validates the JSON before saving and confirms each upload.
 
 ### Apply to a job
 
-Send a job posting URL to your Telegram bot. The bot works with most major job boards:
+**Simply send a job posting URL to your Telegram bot** — no commands needed, just paste the URL.
 
-**Example URLs:**
+**Supported job boards:**
 ```
-https://www.linkedin.com/jobs/view/123456789/
-https://jobs.lever.co/company/job-id
-https://apply.workable.com/company/j/job-code/
-https://greenhouse.io/company/jobs/123456
-https://jobs.ashbyhq.com/company/job-id
+LinkedIn:    https://www.linkedin.com/jobs/view/123456789/
+Lever:       https://jobs.lever.co/company/job-id
+Workable:    https://apply.workable.com/company/j/job-code/
+Greenhouse:  https://greenhouse.io/company/jobs/123456
+Ashby:       https://jobs.ashbyhq.com/company/job-id
+Bamboo HR:   https://company.bamboohr.com/jobs/view.php?id=123
 ```
 
-Just paste the URL — no commands needed. The bot will:
-1. Open the page in a browser
-2. Read the job description
-3. Find and fill the application form
-4. Upload your resume
-5. Submit the application
-6. Log the result to your Google Sheet
+**What happens next:**
+
+1. **Agent launches** — Opens the job page in a real browser
+2. **Reads the job** — Extracts company name, job title, description
+3. **Finds the form** — Locates input fields (name, email, phone, etc.)
+4. **Fills everything** — Uses your `profile.json` data to complete the form
+5. **Uploads resume** — Attaches your `resume.pdf` to upload fields
+6. **Submits** — Clicks the submit button
+7. **Updates Google Sheet** — Logs the application with all details
+8. **Replies to you** — Confirms success or explains failure
 
 **Example:**
 
