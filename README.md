@@ -85,7 +85,12 @@ Put your files in the `assets/` directory before starting the bot:
 | `assets/profile.json` | Your personal details used to fill forms |
 | `assets/service_account.json` | Google service account key (optional — see step 4) |
 
-Edit `assets/profile.json` with your real information. The template is pre-filled with placeholders.
+To create your profile, copy the example file and fill in your information:
+
+```bash
+cp assets/profile.json.example assets/profile.json
+# Edit assets/profile.json with your real information
+```
 
 > **Note:** `service_account.json` is only required if you use the file-based credential option (Option B in step 4). If you set `GOOGLE_SERVICE_ACCOUNT_JSON` in `.env`, you don't need this file at all.
 
@@ -283,7 +288,8 @@ applier/
 ├── requirements.txt
 ├── .env.example
 ├── assets/
-│   ├── profile.json          ← your personal details
+│   ├── profile.json.example  ← template for your personal details
+│   ├── profile.json          ← your personal details (add this yourself)
 │   ├── resume.pdf            ← your resume (add this yourself)
 │   └── service_account.json  ← Google service account key (add this yourself)
 └── src/
@@ -298,6 +304,7 @@ applier/
 ## Security notes
 
 - `assets/resume.pdf` contains personal data — never commit it to git
+- `assets/profile.json` contains personal data — never commit it to git (use `profile.json.example` as a template)
 - `assets/service_account.json` contains sensitive credentials — never commit it to git (prefer the `GOOGLE_SERVICE_ACCOUNT_JSON` env var on a VPS so no file needs to be transferred)
 - Use `ALLOWED_TELEGRAM_USER_IDS` to restrict bot access to your own account
 - Keep your `.env` file out of version control (it is in `.gitignore`)
