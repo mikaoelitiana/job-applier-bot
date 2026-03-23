@@ -44,11 +44,23 @@ You can also set a fallback model with `FALLBACK_LLM_MODEL` — used when the pr
 
 ## Prerequisites
 
-- Docker and Docker Compose installed on your VPS (or local machine)
-- An Anthropic (or OpenAI / Gemini / Perplexity / OpenRouter / Ollama / MiniMax / OpenCode / Together) API key
-- A Telegram bot token
-- A Google Sheet with columns: `Company`, `Title`, `Status`, `Job Posting Link`, `Contact`, `Application Date`, `Interview Stage`, `Interviewer`, `Notes`
-- A Google Cloud service account with Sheets access
+### System Requirements
+
+- **VPS or Local Machine:**
+  - 2 GB RAM minimum (4 GB recommended for larger forms)
+  - 2 CPU cores
+  - 5 GB disk space (for Docker images and Chromium)
+- **Docker and Docker Compose** installed
+- **SSH access** to your server (if deploying remotely)
+
+### Required Accounts & Services
+
+- **LLM Provider:** API key from one of the supported providers (see table above)
+  - Recommended: Anthropic Claude or OpenAI GPT-4
+  - Free option: Local Ollama (see setup below)
+- **Telegram Bot:** Create via [@BotFather](https://t.me/BotFather)
+- **Google Cloud:** Service account with Sheets API access
+- **Google Sheet:** Spreadsheet to log applications (can be empty to start)
 
 ---
 
@@ -57,12 +69,19 @@ You can also set a fallback model with `FALLBACK_LLM_MODEL` — used when the pr
 ### 1. Clone the repo and create your `.env`
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/mikaoelitiana/applier.git
 cd applier
 cp .env.example .env
 ```
 
-Edit `.env` and fill in all required values (see comments in the file).
+Edit `.env` and fill in all required values:
+
+- `LLM_MODEL` - Choose your LLM provider (see supported providers above)
+- Corresponding API key (e.g., `ANTHROPIC_API_KEY` if using Anthropic)
+- `TELEGRAM_BOT_TOKEN` - From step 3 below
+- `ALLOWED_TELEGRAM_USER_IDS` - Your Telegram user ID (from step 3)
+- `GOOGLE_SHEET_ID` - From step 4 below
+- `GOOGLE_SERVICE_ACCOUNT_JSON` or `GOOGLE_SERVICE_ACCOUNT_FILE` - From step 4 below
 
 ### 2. Add your assets
 
@@ -214,9 +233,13 @@ If you prefer to copy files from outside the container:
 # Upload from your local machine to the VPS first
 scp assets/resume.pdf assets/profile.json user@your-vps-ip:/tmp/
 
+# Find the container name
+docker compose ps
+
 # Then copy from the VPS into the running container
-docker cp /tmp/resume.pdf applier:/app/assets/resume.pdf
-docker cp /tmp/profile.json applier:/app/assets/profile.json
+# Replace 'applier-applier-1' with your actual container name from the command above
+docker cp /tmp/resume.pdf applier-applier-1:/app/assets/resume.pdf
+docker cp /tmp/profile.json applier-applier-1:/app/assets/profile.json
 ```
 
 The container must be running before `docker cp` will work (the volume is created on first start).
@@ -254,27 +277,86 @@ The bot validates the JSON before saving and confirms each upload.
 
 ### Apply to a job
 
-Send a job posting URL:
+Send a job posting URL to your Telegram bot. The bot works with most major job boards:
 
+**Example URLs:**
 ```
-Application submitted!
+https://www.linkedin.com/jobs/view/123456789/
+https://jobs.lever.co/company/job-id
+https://apply.workable.com/company/j/job-code/
+https://greenhouse.io/company/jobs/123456
+https://jobs.ashbyhq.com/company/job-id
+```
 
-Job: Senior Software Engineer
-Company: Example Corp
+Just paste the URL — no commands needed. The bot will:
+1. Open the page in a browser
+2. Read the job description
+3. Find and fill the application form
+4. Upload your resume
+5. Submit the application
+6. Log the result to your Google Sheet
+
+**Example:**
+
+![Telegram Bot Example](assets/telegram-example.png)
+
+**Success response:**
+```
+✅ Application submitted!
+
+Job: Frontend Engineer
+Company: DeepJudge
+Notes: Application submitted successfully
+
+Status: ✅ Applied
 
 Logged to Google Sheet.
 ```
 
-Or if something went wrong:
-
+**Failure response:**
 ```
-Application failed.
+❌ Application failed.
 
 Job: Senior Software Engineer
 Company: Example Corp
 Reason: Form requires login — no public application available.
 
+Logged to Google Sheet (marked as failed).
+```
+https://www.linkedin.com/jobs/view/123456789/
+https://jobs.lever.co/company/job-id
+https://apply.workable.com/company/j/job-code/
+https://greenhouse.io/company/jobs/123456
+https://jobs.ashbyhq.com/company/job-id
+```
+
+Just paste the URL — no commands needed. The bot will:
+1. Open the page in a browser
+2. Read the job description
+3. Find and fill the application form
+4. Upload your resume
+5. Submit the application
+6. Log the result to your Google Sheet
+
+**Success response:**
+```
+✅ Application submitted!
+
+Job: Senior Software Engineer
+Company: Example Corp
+
 Logged to Google Sheet.
+```
+
+**Failure response:**
+```
+❌ Application failed.
+
+Job: Senior Software Engineer
+Company: Example Corp
+Reason: Form requires login — no public application available.
+
+Logged to Google Sheet (marked as failed).
 ```
 
 ---
@@ -301,6 +383,184 @@ applier/
 
 ---
 
+## Troubleshooting
+
+### Bot not responding to messages
+
+**Check if the bot is running:**
+```bash
+docker compose ps
+docker compose logs -f
+```
+
+**Common causes:**
+- `TELEGRAM_BOT_TOKEN` is incorrect or missing
+- Your user ID is not in `ALLOWED_TELEGRAM_USER_IDS`
+- Container failed to start (check logs)
+
+### Application failures
+
+**Check the error message** — the bot will explain why it failed:
+- "Form requires login" → No public application form available
+- "Timeout" → Job posting page took too long to load (try again or increase `JOB_TIMEOUT_MINUTES`)
+- "Could not find application form" → The page structure isn't recognized
+
+**View detailed logs:**
+```bash
+# View container logs
+docker compose logs -f
+
+# Or check the log file (inside the container)
+docker compose exec applier-applier-1 tail -f /app/assets/applier.log
+```
+
+### Google Sheets not updating
+
+**Verify service account setup:**
+1. Check that the service account email is shared with your Google Sheet (with Editor access)
+2. Verify `GOOGLE_SHEET_ID` matches your sheet's URL
+3. Ensure `GOOGLE_SHEET_TAB` matches your tab name (default: `Applications`)
+
+**Test credentials:**
+```bash
+# Check if the credentials are loaded correctly
+docker compose logs | grep -i "google\|sheet\|gspread"
+```
+
+### LLM errors or "Invalid agent output"
+
+**If using a fallback model:**
+- The bot will automatically retry with `FALLBACK_LLM_MODEL` if the primary model fails
+- Check logs to see which model is being used
+
+**API key issues:**
+- Verify your API key is correct and active
+- Check that you have credits/quota remaining
+- Ensure the model name matches the provider's supported models
+
+### Container keeps restarting
+
+**Check resource limits:**
+```bash
+docker stats
+```
+
+Chromium needs at least 2 GB RAM. If you're running low on memory, try:
+- Using a lighter LLM model
+- Increasing your server's RAM
+- Closing other applications
+
+### Local Ollama setup
+
+If using `ollama/llama3` without an API key:
+
+1. **Install Ollama locally:**
+   ```bash
+   # macOS
+   brew install ollama
+   
+   # Linux
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
+
+2. **Pull a model:**
+   ```bash
+   ollama pull llama3.1:8b
+   ```
+
+3. **Run Ollama server:**
+   ```bash
+   ollama serve
+   ```
+
+4. **Configure the bot:**
+   ```bash
+   # In .env
+   LLM_MODEL=ollama/llama3.1:8b
+   ```
+
+**Note:** If running the bot in Docker and Ollama on your host machine, use `host.docker.internal` instead of `localhost` in the Ollama URL.
+
+---
+
+## FAQ
+
+**Q: How much does it cost to run?**
+- VPS: $5-10/month (e.g., DigitalOcean, Hetzner, AWS Lightsail)
+- LLM API: Varies by provider
+  - Anthropic Claude: ~$0.10-0.50 per application
+  - OpenAI GPT-4: ~$0.05-0.30 per application
+  - Local Ollama: Free (but requires more RAM)
+
+**Q: How many applications can I submit per hour?**
+- No hard limit, but be respectful to job boards
+- Each application takes 1-5 minutes depending on form complexity
+- Consider rate limiting to avoid triggering anti-bot measures
+
+**Q: Can I use this for multiple job seekers?**
+- Yes, but you'll need separate Telegram bots and Google Sheets for each person
+- Set up multiple deployments with different `.env` configurations
+
+**Q: What job boards are supported?**
+- The bot works with most modern job application forms
+- Confirmed working: LinkedIn, Lever, Greenhouse, Workable, Ashby, Bamboo HR
+- Does NOT work with: Forms requiring login, CAPTCHA-protected sites, multi-step applications across different domains
+
+**Q: Will this get me banned from job boards?**
+- Unlikely if used responsibly
+- The bot uses a real browser (Chromium) and mimics human behavior
+- Avoid submitting dozens of applications per minute
+- Each application is genuinely filled out, not spam
+
+**Q: Can I customize the cover letter per job?**
+- Yes! Edit the `cover_letter_intro` field in your `profile.json`
+- The agent uses your profile data and the job description to fill forms appropriately
+
+**Q: How do I update my resume or profile?**
+- Send new files to the Telegram bot (easiest)
+- Or use `docker cp` to copy updated files into the container
+- Changes take effect immediately for the next application
+
+---
+
+## Debugging
+
+### View logs
+
+**Real-time logs:**
+```bash
+docker compose logs -f
+```
+
+**Application logs (inside container):**
+```bash
+docker compose exec applier-applier-1 cat /app/assets/applier.log
+```
+
+**Filter for errors:**
+```bash
+docker compose logs | grep -i error
+```
+
+### Check environment variables
+
+```bash
+docker compose exec applier-applier-1 env | grep -E "LLM_MODEL|TELEGRAM|GOOGLE"
+```
+
+### Test the bot manually
+
+Send `/start` to your Telegram bot to verify it's responding.
+
+### Restart the bot
+
+```bash
+docker compose restart
+docker compose logs -f
+```
+
+---
+
 ## Security notes
 
 - `assets/resume.pdf` contains personal data — never commit it to git
@@ -308,3 +568,11 @@ applier/
 - `assets/service_account.json` contains sensitive credentials — never commit it to git (prefer the `GOOGLE_SERVICE_ACCOUNT_JSON` env var on a VPS so no file needs to be transferred)
 - Use `ALLOWED_TELEGRAM_USER_IDS` to restrict bot access to your own account
 - Keep your `.env` file out of version control (it is in `.gitignore`)
+
+---
+
+## License
+
+MIT License - feel free to use this for personal or commercial purposes.
+
+See [LICENSE](LICENSE) for details.
