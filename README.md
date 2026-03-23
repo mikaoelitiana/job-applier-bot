@@ -348,41 +348,6 @@ Reason: Form requires login — no public application available.
 
 Logged to Google Sheet (marked as failed).
 ```
-https://www.linkedin.com/jobs/view/123456789/
-https://jobs.lever.co/company/job-id
-https://apply.workable.com/company/j/job-code/
-https://greenhouse.io/company/jobs/123456
-https://jobs.ashbyhq.com/company/job-id
-```
-
-Just paste the URL — no commands needed. The bot will:
-1. Open the page in a browser
-2. Read the job description
-3. Find and fill the application form
-4. Upload your resume
-5. Submit the application
-6. Log the result to your Google Sheet
-
-**Success response:**
-```
-✅ Application submitted!
-
-Job: Senior Software Engineer
-Company: Example Corp
-
-Logged to Google Sheet.
-```
-
-**Failure response:**
-```
-❌ Application failed.
-
-Job: Senior Software Engineer
-Company: Example Corp
-Reason: Form requires login — no public application available.
-
-Logged to Google Sheet (marked as failed).
-```
 
 ---
 
