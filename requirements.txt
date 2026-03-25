@@ -1,5 +1,5 @@
 # Browser automation
-browser-use==0.12.1
+browser-use==0.12.5
 playwright>=1.40.0
 
 # LLM providers (native adapters used by browser-use)
